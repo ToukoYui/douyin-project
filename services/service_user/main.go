@@ -18,7 +18,7 @@ func main() {
 
 // Init 初始化一些连接
 func Init() {
-
-	db.InitDb()          // mysql连接
-	utils.NewSnowFlake() //创建雪花算法初始配置，防止序号重复
+	utils.InitViper()                                           // 初始化viper
+	db.InitDb(utils.Config.SshConfig, utils.Config.MysqlConfig) // mysql连接
+	utils.NewSnowFlake()                                        //创建雪花算法初始配置，防止序号重复
 }

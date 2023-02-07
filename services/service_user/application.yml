@@ -1,0 +1,21 @@
+mode: dev
+port: 8081
+
+# 远程服务器
+ssh:
+  addr: 8.134.208.93
+  port: 22
+  secret: Yukino123
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  usr: root
+  pwd: Touko217
+  db: dy_user
+
+# 对象存储
+oss:
+  bucket: https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com
+  secret_id: AKID1yiHdpoY6QXQ6JRPDqGWdcQ2VpxtcAVi
+  secret_key: 4ygFd7VtFTVKyPhomX5RabYM1Xt2ygDt

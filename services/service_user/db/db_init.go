@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"douyin-template/utils"
+	"fmt"
 	mysql2 "github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/ssh"
 	"gorm.io/driver/mysql"
@@ -21,12 +23,12 @@ func (self *ViaSSHDialer) Dial(context context.Context, addr string) (net.Conn, 
 }
 
 // getSSH 进行ssh连接
-func getSSH() *ssh.Client {
-	client, err := ssh.Dial("tcp", "8.134.208.93:22",
+func getSSH(config utils.SSH) *ssh.Client {
+	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%s", config.Addr, config.Port),
 		&ssh.ClientConfig{
 			User: "root",
 			Auth: []ssh.AuthMethod{
-				ssh.Password("Yukino123"),
+				ssh.Password(config.Secret),
 			},
 			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 		})
@@ -38,13 +40,12 @@ func getSSH() *ssh.Client {
 }
 
 // InitDb 获取数据库连接
-func InitDb() {
-	mysql2.RegisterDialContext("mysql+tcp", (&ViaSSHDialer{getSSH()}).Dial)
-
-	s1 := "root:Touko217@mysql+tcp(127.0.0.1:3306)/dy_user?charset=utf8mb4&parseTime=true&loc=Local"
-
+func InitDb(sshConfig utils.SSH, mysqlConfig utils.Mysql) {
+	mysql2.RegisterDialContext("mysql+tcp", (&ViaSSHDialer{getSSH(sshConfig)}).Dial)
+	dsn := fmt.Sprintf("%s:%s@mysql+tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=Local",
+		mysqlConfig.Usr, mysqlConfig.Pwd, mysqlConfig.Host, mysqlConfig.Port, mysqlConfig.Db)
 	var err error
-	Db, err = gorm.Open(mysql.Open(s1), &gorm.Config{
+	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt:            true,
 		SkipDefaultTransaction: true,
 	})
