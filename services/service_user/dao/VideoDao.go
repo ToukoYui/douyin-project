@@ -12,15 +12,22 @@ func GetVideoInfoList(request *pb.DouyinFeedRequest) (*[]pb.VideoDto, int64) {
 	// 根据LatestTime降序查询视频列表
 	var videoList []pb.Video
 	latestTime := time.Unix(request.GetLatestTime(), 0)
-	row := db.Db.Where("created_time<?", latestTime).Find(&videoList).RowsAffected
+	fmt.Println("请求时间为：", latestTime)
+	row := db.Db.Where("created_time>=?", latestTime).Order("created_time desc").Find(&videoList).RowsAffected
 	if row <= 0 {
-		panic(any("批量查询失败！！！"))
+		panic(any(fmt.Sprintf("无查询结果,批量查询失败,查询时间参数：%v", latestTime)))
 	}
+
+	fmt.Printf("videoList结果大小：%d,结果列表:%#v\n", len(videoList), videoList)
+
 	resultList := make([]pb.VideoDto, len(videoList))
 	for i, item := range videoList {
 		//根据user_id查询User对象
 		var user pb.User
-		db.Db.First(&user, item.GetUserId())
+		db.Db.Select([]string{"id", "name", "follow_count", "follower_count"}).First(&user, item.GetUserId())
+		// 查询favorite表获取is_favorite
+		favorite := pb.Favorite{}
+		db.Db.Select("is_favorite").Where("user_id=? and video_id=?", user.GetId(), item.GetId()).First(&favorite)
 		// 包装视频列表结果
 		resultList[i] = pb.VideoDto{
 			Id:            item.GetId(),
@@ -29,12 +36,14 @@ func GetVideoInfoList(request *pb.DouyinFeedRequest) (*[]pb.VideoDto, int64) {
 			CoverUrl:      item.GetCoverUrl(),
 			FavoriteCount: item.GetFavoriteCount(),
 			CommentCount:  item.GetCommentCount(),
-			IsFavorite:    item.GetIsFavorite(),
+			IsFavorite:    favorite.IsFavorite,
 			Title:         item.GetTitle(),
 		}
 	}
-	fmt.Printf("结果列表:%#v\n", resultList[0])
-	return &resultList, request.GetLatestTime()
+	fmt.Printf("结果大小：%d,结果列表:%#v\n", len(resultList), resultList)
+	// 获取视频列表中的最早发布的时间
+	earlyTime := videoList[len(videoList)-1].CreatedAt
+	return &resultList, earlyTime.Unix()
 }
 
 // CreateVideoInfo 添加视频信息
@@ -43,4 +52,34 @@ func CreateVideoInfo(video *pb.Video) {
 	if row != 1 {
 		panic(any("添加视频信息失败！！！"))
 	}
+}
+
+// GetPublishVideoList 获取单个用户的发布视频列表
+func GetPublishVideoList(request *pb.DouyinPublishListRequest) *[]pb.VideoDto {
+	// 查询该用户发布过的视频信息
+	var videoList []pb.Video
+	db.Db.Where("user_id=?", request.UserId).Find(&videoList)
+	// 遍历包装
+	resultList := make([]pb.VideoDto, len(videoList))
+	for i, item := range videoList {
+		//根据user_id查询User对象
+		var user pb.User
+		db.Db.Select([]string{"id", "name", "follow_count", "follower_count"}).First(&user, item.GetUserId())
+		// 查询favorite表获取is_favorite
+		favorite := pb.Favorite{}
+		db.Db.Select("is_favorite").Where("user_id=? and video_id=?", user.GetId(), item.GetId()).First(&favorite)
+		// 包装视频列表结果
+		resultList[i] = pb.VideoDto{
+			Id:            item.GetId(),
+			Author:        user,
+			PlayUrl:       item.GetPlayUrl(),
+			CoverUrl:      item.GetCoverUrl(),
+			FavoriteCount: item.GetFavoriteCount(),
+			CommentCount:  item.GetCommentCount(),
+			IsFavorite:    favorite.IsFavorite,
+			Title:         item.GetTitle(),
+		}
+	}
+	return &resultList
+
 }

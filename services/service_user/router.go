@@ -16,5 +16,5 @@ func InitRouter(engine *gin.Engine) {
 
 	preGroup.GET("/feed/", controller.Feed)
 	preGroup.POST("/publish/action/", controller.Publish)
-	//preGroup.GET("/publish/list/", controller.PublishList)
+	preGroup.GET("/publish/list/", controller.PublishList)
 }

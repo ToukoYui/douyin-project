@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+type User struct {
+	name string
+}
+
 func TestName(t *testing.T) {
 	now := time.Now()
 	fileName := "abc.mp4"
@@ -19,4 +23,5 @@ func TestName(t *testing.T) {
 	fmt.Println(time.Now().Unix())
 	fmt.Println(time.Unix(16757759911, 0))
 	fmt.Println(time.Unix(1675775991, 0).Format("2006-01-02 15:04:05"))
+
 }
