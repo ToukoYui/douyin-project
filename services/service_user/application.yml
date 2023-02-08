@@ -17,5 +17,5 @@ mysql:
 # 对象存储
 oss:
   bucket: https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com
-  secret_id: AKID1yiHdpoY6QXQ6JRPDqGWdcQ2VpxtcAVi
-  secret_key: 4ygFd7VtFTVKyPhomX5RabYM1Xt2ygDt
+  secret_id: XXX
+  secret_key: XXX
