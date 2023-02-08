@@ -18,7 +18,7 @@ func Feed(ctx *gin.Context) {
 	if timeStr := ctx.Query("latest_time"); timeStr == "" {
 		latestTime = time.Now().Unix() //可选参数，为空字符串则用当前时间戳代替
 	} else {
-		// 前端传过来的时间戳是1675778933948（55073-04-27 20:19:08），Year会超出gorm设定的范围
+		// 前端传过来的时间戳是1675778933948（55073-04-27 20:19:08），Year会超出设定的范围
 		// 报错为: “year is not in the range [1, 9999]: 55073”
 		// 这里如果越界就用now代替了
 		latestTime, _ = strconv.ParseInt(timeStr, 10, 64)
@@ -32,11 +32,14 @@ func Feed(ctx *gin.Context) {
 	}
 	videoInfoList, nextTime := dao.GetVideoInfoList(&request)
 	// todo redis缓存
+
+	// 控制台打印结果，可以不要
 	data, err := json.Marshal(*videoInfoList)
 	if err != nil {
 		panic(any("转化为json字符串失败"))
 	}
 	fmt.Println(string(data))
+
 	ctx.JSON(http.StatusOK, pb.DouyinFeedResponse{
 		StatusCode: 0,
 		StatusMsg:  "获取视频流成功",
