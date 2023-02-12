@@ -5,6 +5,7 @@ port: 8081
 ssh:
   addr: 8.134.208.93
   port: 22
+  usr: root
   secret: Yukino123
 
 mysql:
@@ -13,6 +14,12 @@ mysql:
   usr: root
   pwd: Touko217
   db: dy_user
+
+redis:
+  addr: 8.134.208.93
+  port: 6379
+  db: 0
+
 
 # 对象存储
 oss:

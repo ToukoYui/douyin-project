@@ -18,7 +18,7 @@ func IsUserExist(username string) bool {
 }
 
 // InsertUser 添加用户
-func InsertUser(request *pb.DouyinUserRegisterRequest) int64 {
+func InsertUser(request *pb.DouyinUserRegisterRequest) (int64, string) {
 	// 生成唯一id
 	id := utils.NewSnowId()
 	db.Db.Create(&pb.User{
@@ -28,17 +28,17 @@ func InsertUser(request *pb.DouyinUserRegisterRequest) int64 {
 		FollowCount:   0,
 		FollowerCount: 0,
 	})
-	return id
+	return id, request.GetUsername()
 }
 
 // VerifyUser 验证密码
-func VerifyUser(request *pb.DouyinUserLoginRequest) int64 {
+func VerifyUser(request *pb.DouyinUserLoginRequest) (int64, string) {
 	var user pb.User
 	row := db.Db.Where("name=? and password=?", request.GetUsername(), request.GetPassword()).First(&user).RowsAffected
 	if row == 1 {
-		return user.Id
+		return user.Id, user.GetName()
 	}
-	return 0
+	return 0, ""
 }
 
 // GetUserInfo 查询用户信息

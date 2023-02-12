@@ -16,9 +16,10 @@ func main() {
 
 }
 
-// Init 初始化一些连接
+// Init 初始化一些连接和配置
 func Init() {
 	utils.InitViper()                                           // 初始化viper
 	db.InitDb(utils.Config.SshConfig, utils.Config.MysqlConfig) // mysql连接
+	utils.InitRedis(utils.Config.RedisConfig)                   //Redis连接
 	utils.NewSnowFlake()                                        //创建雪花算法初始配置，防止序号重复
 }

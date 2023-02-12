@@ -1,14 +1,23 @@
 package controller
 
 import (
+	"context"
 	"douyin-template/model/pb"
 	"douyin-template/services/service_user/dao"
 	"douyin-template/utils"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"strings"
+	"time"
 )
+
+type TokenInfo struct {
+	UserId   string `json:"user_id"`
+	UserName string `json:"username"`
+}
 
 func Register(ctx *gin.Context) {
 	request := pb.DouyinUserRegisterRequest{
@@ -24,10 +33,19 @@ func Register(ctx *gin.Context) {
 	}
 
 	// 将user添加进表中
-	id := dao.InsertUser(&request)
-	token := utils.CreateToken("my_key") // 生成token
-	// TODO 需要在此访问线程中保存token和user_id
+	id, name := dao.InsertUser(&request)
+	token := utils.CreateToken(id, name) // 生成token
 
+	//  将id和name放进redis，用于token检验时匹配
+	tokenInfo := TokenInfo{
+		UserId:   strconv.FormatInt(id, 10),
+		UserName: name,
+	}
+	marshal, err := json.Marshal(tokenInfo)
+	if err != nil {
+		panic(any("json转化失败"))
+	}
+	utils.RedisDb.Set(context.Background(), strings.Join([]string{"token", token}, ":"), marshal, time.Minute*30)
 	ctx.JSON(http.StatusOK, pb.DouyinUserRegisterResponse{
 		StatusCode: 0,
 		StatusMsg:  "注册成功",
@@ -48,10 +66,20 @@ func Login(ctx *gin.Context) {
 		})
 		return
 	}
-	if id := dao.VerifyUser(&request); id != 0 {
+	// 登录成功
+	if id, name := dao.VerifyUser(&request); id != 0 {
 		//生成Token
-		token := utils.CreateToken("my_key")
-		// TODO 需要在此访问线程中保存token和user_id
+		token := utils.CreateToken(id, name)
+		//  将id和name放进redis，用于token检验时匹配
+		tokenInfo := TokenInfo{
+			UserId:   strconv.FormatInt(id, 10),
+			UserName: name,
+		}
+		marshal, err := json.Marshal(tokenInfo)
+		if err != nil {
+			panic(any("json转化失败"))
+		}
+		utils.RedisDb.Set(context.Background(), strings.Join([]string{"token", token}, ":"), marshal, time.Minute*30)
 
 		ctx.JSON(http.StatusOK, pb.DouyinUserLoginResponse{
 			StatusCode: 0,
@@ -68,6 +96,15 @@ func Login(ctx *gin.Context) {
 }
 
 func UserInfo(ctx *gin.Context) {
+	// token验证
+	if !utils.ValidateToken(ctx.Query("token")) {
+		ctx.JSON(http.StatusUnauthorized, pb.DouyinUserResponse{
+			StatusCode: 1,
+			StatusMsg:  "Token解析错误，验证失败",
+		})
+		return
+	}
+	// 包装request
 	id, err := strconv.ParseInt(ctx.Query("user_id"), 10, 64)
 	if err != nil {
 		fmt.Println(err)
@@ -77,8 +114,6 @@ func UserInfo(ctx *gin.Context) {
 		UserId: id,
 		Token:  ctx.Query("token"),
 	}
-	// TODO 需要token校验
-
 	// 获取用户信息
 	userInfo := dao.GetUserInfo(&request)
 	ctx.JSON(http.StatusOK, pb.DouyinUserResponse{

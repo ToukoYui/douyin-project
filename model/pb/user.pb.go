@@ -78,7 +78,7 @@ type DouyinUserResponse struct {
 
 	StatusCode int32  `protobuf:"varint,1,req,name=status_code,json=statusCode" json:"status_code"`       // 状态码，0-成功，其他值-失败
 	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg" json:"status_msg,omitempty"` // 返回状态描述
-	User       User   `protobuf:"bytes,3,req,name=user" json:"user"`                                      // 用户信息
+	User       User   `protobuf:"bytes,3,req,name=user" json:"user,omitempty"`                            // 用户信息
 }
 
 func (x *DouyinUserResponse) Reset() {

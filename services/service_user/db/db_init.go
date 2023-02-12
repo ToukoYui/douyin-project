@@ -26,7 +26,7 @@ func (self *ViaSSHDialer) Dial(context context.Context, addr string) (net.Conn, 
 func getSSH(config utils.SSH) *ssh.Client {
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%s", config.Addr, config.Port),
 		&ssh.ClientConfig{
-			User: "root",
+			User: config.Usr,
 			Auth: []ssh.AuthMethod{
 				ssh.Password(config.Secret),
 			},
