@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjEzMTMzMzMwMDAwIiwiZXhwIjoxNjc1NjE0NjIxLCJuYmYiOjE2NzU2MDM4MjEsImlhdCI6MTY3NTYwMzgyMX0.fS8LMdEjuz03ER4WQmF0LPtNahUwr09lTMKMLusiAY0"
+var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6IjEzMTMzMzMwMDAwIiwiZXhwIjoxNjc2MjA4NjM4LCJuYmYiOjE2NzYxOTc4MzgsImlhdCI6MTY3NjE5NzgzOH0.AZpsl_ipgSwo5GqyY8nGQvl3n4NPBBQb6mVNxUDwDuU"
 var myKey = []byte("my_key")
 
 func Secret() jwt.Keyfunc {
 	return func(token *jwt.Token) (interface{}, error) {
-		return []byte("my_key"), nil // 这是我的secret
+		return myKey, nil // 这是我的secret
 	}
 }
 
@@ -41,7 +41,10 @@ func TestCreate(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
-	key, _ := jwt.Parse(token, Secret())
-
-	fmt.Println(key.Claims, key.Method, key.Signature, key.Header, key.Raw)
+	//key, _ := jwt.Parse(token, Secret())
+	abc := MyClaims{}
+	myClaim, _ := jwt.ParseWithClaims(token, &abc, Secret())
+	fmt.Println(myClaim.Claims.(*MyClaims), myClaim.Claims.(*MyClaims).Phone, myClaim.Claims.Valid(), myClaim.Valid)
+	fmt.Println(abc)
+	//fmt.Println(key.Claims, key.Method, key.Signature, key.Header, key.Raw)
 }

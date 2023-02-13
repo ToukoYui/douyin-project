@@ -9,6 +9,7 @@ import (
 type SSH struct {
 	Addr   string `mapstructure:"addr"`
 	Port   string `mapstructure:"port"`
+	Usr    string `mapstructure:"usr"`
 	Secret string `mapstructure:"secret"`
 }
 
@@ -17,6 +18,12 @@ type Mysql struct {
 	Port string
 	Usr  string
 	Pwd  string
+	Db   string
+}
+
+type Redis struct {
+	Addr string
+	Port string
 	Db   string
 }
 
@@ -32,14 +39,18 @@ type Application struct {
 	Port        string
 	SshConfig   SSH   `mapstructure:"ssh"`
 	MysqlConfig Mysql `mapstructure:"mysql"`
+	RedisConfig Redis `mapstructure:"redis"`
 	OssConfig   Oss   `mapstructure:"oss"`
 }
 
 var Config Application // 供全局使用
 
 func InitViper() {
-	//viper.SetConfigFile("../services/service_user/application.yml")
-	viper.SetConfigFile("E:/Go代码页/douyin-project/services/service_user/application.yml")
+	viper.SetConfigFile("./services/service_user/application.yml")
+	//viper.AddConfigPath("./")          //设置读取的文件路径
+	//viper.SetConfigName("application") //设置读取的文件名
+	//viper.SetConfigType("yml")         //设置文件的类型
+
 	err := viper.ReadInConfig() // 读取配置文件
 	if err != nil {
 		panic(any(fmt.Errorf("viper读取配置文件错误：%v", err)))
