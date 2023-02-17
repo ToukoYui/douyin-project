@@ -9,6 +9,7 @@
 - viper读取配置类文件xxx.yml : go get github.com/spf13/viper
 - 对象存储 : go get -u github.com/tencentyun/cos-go-sdk-v5
 - redis：go get github.com/go-redis/redis/v8
+- 接口限流: "golang.org/x/time/rate"
 
 # 说明
 - 测试用例：https://www.apifox.cn/apidoc/shared-581228eb-4ef0-4e15-ae1e-35e08986483d

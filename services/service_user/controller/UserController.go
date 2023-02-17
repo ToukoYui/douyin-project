@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 	"net/http"
 	"strconv"
 	"strings"
@@ -24,18 +25,26 @@ func Register(ctx *gin.Context) {
 		Username: ctx.Query("username"),
 		Password: ctx.Query("password"),
 	}
-	if dao.IsUserExist(request.GetUsername()) {
-		ctx.JSON(http.StatusOK, pb.DouyinUserRegisterResponse{
+	userName := request.GetUsername()
+	fmt.Println(userName)
+	if !requestIsAllow(5, userName) {
+		ctx.JSON(http.StatusTooManyRequests, pb.DouyinUserLoginResponse{
+			StatusCode: 2,
+			StatusMsg:  "操作过于频繁!",
+		})
+		return
+	}
+	//请求打到数据库上了
+	if dao.IsUserExist(userName) {
+		ctx.JSON(http.StatusBadRequest, pb.DouyinUserRegisterResponse{
 			StatusCode: 1,
 			StatusMsg:  "注册失败，该用户名已存在",
 		})
 		return
 	}
-
 	// 将user添加进表中
 	id, name := dao.InsertUser(&request)
 	token := utils.CreateToken(id, name) // 生成token
-
 	//  将id和name放进redis，用于token检验时匹配
 	tokenInfo := TokenInfo{
 		UserId:   strconv.FormatInt(id, 10),
@@ -59,7 +68,16 @@ func Login(ctx *gin.Context) {
 		Username: ctx.Query("username"),
 		Password: ctx.Query("password"),
 	}
-	if !dao.IsUserExist(request.GetUsername()) {
+	userName := request.GetUsername()
+	if !requestIsAllow(5, userName) {
+		ctx.JSON(http.StatusTooManyRequests, pb.DouyinUserLoginResponse{
+			StatusCode: 2,
+			StatusMsg:  "操作过于频繁!",
+		})
+		return
+	}
+
+	if !dao.IsUserExist(userName) {
 		ctx.JSON(http.StatusBadRequest, pb.DouyinUserLoginResponse{
 			StatusCode: 1,
 			StatusMsg:  "该用户不存在",
@@ -122,4 +140,23 @@ func UserInfo(ctx *gin.Context) {
 		// 由于omitempty关键字无法识别并忽略嵌套结构体的字段空值，返回的json结果会包含时间的空值
 		User: userInfo,
 	})
+}
+
+/*
+*
+
+	r : 每rate毫秒放入一个令牌
+	capacity : 令牌桶的大小
+	identify : 标志接口请求者的一个信息
+*/
+func requestIsAllow(capacity int, identify string) bool {
+	/*登录接口限流实现*/
+	//1. 创建新的限流器
+	//参数说明
+	// r: 每10ms可以接受一次注册
+	// b: 桶中可以放100的令牌
+	// key:限制userName
+	limiter := utils.NewLimiter(rate.Every(1000*time.Millisecond), capacity, identify)
+	//3. 检查是否超过限流的限制
+	return limiter.Allow()
 }
