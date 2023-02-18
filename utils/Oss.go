@@ -51,7 +51,7 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 	fileName := FileHeader.Filename
 	pathSlice := []string{"video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), fileName}
 	filePath := strings.Join(pathSlice, "/")
-	fmt.Println("上传路径--->", filePath)
+	fmt.Println("video上传路径--->", filePath)
 
 	// 通过本地文件上传对象
 	//_, err = c.Object.PutFromFile(context.Background(), name, "../test", nil)
@@ -76,9 +76,13 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 
 	// 生成play_url
 	playUrl := strings.Join([]string{bucket, filePath}, "/")
-	// 生成cover_rul
-	coverUrl := "https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture/cover.jpg"
-	//coverUrl := strings.Join([]string{bucket,coverPath},"/")
-
+	// 生成cover_url---> inputName+videoName.jpg
+	picturePath := "https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture"
+	// 将fileName-->xxx.mp4替换成xxx.jpg
+	pictureName := strings.Replace(fileName, "mp4", "jpg", 1)
+	pathSlice2 := []string{picturePath, "video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), pictureName}
+	// example：https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture/video/YY/MM/dd/fileName.jpg
+	coverUrl := strings.Join(pathSlice2, "/")
+	fmt.Println("cover上传路径--->", coverUrl)
 	return playUrl, coverUrl, nil
 }
