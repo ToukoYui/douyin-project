@@ -28,7 +28,7 @@ type Redis struct {
 }
 
 type Oss struct {
-	Bucket    string
+	Bucket    string `mapstructure:"bucket"`
 	SecretId  string `mapstructure:"secret_id"`
 	SecretKey string `mapstructure:"secret_key"`
 }

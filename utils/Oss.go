@@ -15,13 +15,15 @@ import (
 
 var bucket = "https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com"
 
-var secretId = "AKID1yiHdpoY6QXQ6JRPDqGWdcQ2VpxtcAVi"
-var secretKey = "4ygFd7VtFTVKyPhomX5RabYM1Xt2ygDt"
+// var bucket = Config.OssConfig.Bucket
+var secretId = Config.OssConfig.SecretId
+var secretKey = Config.OssConfig.SecretKey
+
+var client cos.Client
 
 // NewOssClient 生成Client
 func NewOssClient() *cos.Client {
 	// 将 examplebucket-1250000000 和 COS_REGION 修改为用户真实的信息
-
 	u, _ := url.Parse(bucket)
 	// 用于 Get Service 查询，默认全地域 service.cos.myqcloud.com
 	su, _ := url.Parse("https://cos.ap-guangzhou.myqcloud.com")
@@ -52,7 +54,7 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 	pathSlice := []string{"video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), fileName}
 	filePath := strings.Join(pathSlice, "/")
 	fmt.Println("video上传路径--->", filePath)
-
+	fmt.Println("adawdaw", bucket, secretKey, secretId)
 	// 通过本地文件上传对象
 	//_, err = c.Object.PutFromFile(context.Background(), name, "../test", nil)
 	//if err != nil {

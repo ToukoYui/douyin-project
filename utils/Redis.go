@@ -10,6 +10,7 @@ var RedisDb *redis.Client
 
 func InitRedis(config Redis) {
 	db, _ := strconv.Atoi(config.Db)
+	//fmt.Println("redis", Config.RedisConfig.Addr)
 	RedisDb = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", config.Addr, config.Port), // 指定
 		Password: "",
