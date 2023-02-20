@@ -45,8 +45,8 @@ type Application struct {
 
 var Config Application // 供全局使用
 
-func InitViper() {
-	viper.SetConfigFile("./services/service_user/application.yml")
+func InitViper(path string) {
+	viper.SetConfigFile(path)
 	//viper.AddConfigPath("./")          //设置读取的文件路径
 	//viper.SetConfigName("application") //设置读取的文件名
 	//viper.SetConfigType("yml")         //设置文件的类型

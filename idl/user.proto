@@ -1,0 +1,40 @@
+syntax = "proto3";
+package user;
+option go_package = "./";
+
+
+//message BaseResp {
+//  int64 status_code = 1;
+//  string status_message = 2;
+//  int64 service_time = 3;
+//}
+
+//message douyin_user_register_request {
+//  string username = 1; // 注册用户名
+//  string password = 2; // 密码
+//  string avatar   = 3;
+//}
+//
+//message douyin_user_register_response {
+//  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+//  optional string status_msg = 2; // 返回状态描述
+//  int64 user_id = 3; // 用户id
+//  string token = 4; // 用户鉴权token
+//}
+
+message douyin_user_login_request {
+  string username = 1; // 登录用户名
+  string password = 2; // 登录密码
+}
+
+message douyin_user_login_response {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  int64 user_id = 3; // 用户id
+  string token = 4; // 用户鉴权token
+}
+
+
+service UserSrv{
+  rpc Login (douyin_user_login_request) returns (douyin_user_login_response) {}
+}

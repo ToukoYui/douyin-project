@@ -2,8 +2,8 @@ package controller
 
 import (
 	"douyin-template/model/pb"
-	"douyin-template/services/service_user/dao"
-	"douyin-template/services/service_user/service"
+	"douyin-template/services/service_video/dao"
+	"douyin-template/services/service_video/service"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -13,6 +13,11 @@ import (
 )
 
 // Feed 视频流接口
+
+//func (s *Server) GetUserInfo(ctx context.Context, request *model.DouyinUserRequest) (*model.DouyinUserResponse, error) {
+//
+//}
+
 func Feed(ctx *gin.Context) {
 	var latestTime int64
 	if timeStr := ctx.Query("latest_time"); timeStr == "" {

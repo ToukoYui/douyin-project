@@ -2,7 +2,7 @@ package service
 
 import (
 	"douyin-template/model/pb"
-	"douyin-template/services/service_user/dao"
+	"douyin-template/services/service_video/dao"
 	"douyin-template/utils"
 )
 

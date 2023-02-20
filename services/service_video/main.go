@@ -5,6 +5,7 @@ import (
 	"douyin-template/services/service_user/controller"
 	"douyin-template/services/service_user/db"
 	"douyin-template/utils"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -12,7 +13,8 @@ import (
 
 // Init 初始化一些连接和配置
 func Init() {
-	utils.InitViper("./services/service_user/application.yml")  // 初始化viper
+	viper.SetConfigFile("./services/service_video/application.yml")
+	utils.InitViper("./services/service_video/application.yml") // 初始化viper
 	db.InitDb(utils.Config.SshConfig, utils.Config.MysqlConfig) // mysql连接
 	utils.InitRedis(utils.Config.RedisConfig)                   //Redis连接
 	utils.NewSnowFlake()                                        //创建雪花算法初始配置，防止序号重复
@@ -21,7 +23,7 @@ func Init() {
 func main() {
 	Init()
 	// 监听本地 5678 端口
-	listen, err := net.Listen("tcp", ":5678")
+	listen, err := net.Listen("tcp", ":5679")
 	if err != nil {
 		log.Fatal(err)
 		return

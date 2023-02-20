@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"douyin-template/model"
 	"douyin-template/model/pb"
 	"douyin-template/services/service_user/db"
 	"douyin-template/utils"
@@ -18,7 +19,7 @@ func IsUserExist(username string) bool {
 }
 
 // InsertUser 添加用户
-func InsertUser(request *pb.DouyinUserRegisterRequest) (int64, string) {
+func InsertUser(request *model.DouyinUserRegisterRequest) (int64, string) {
 	// 生成唯一id
 	id := utils.NewSnowId()
 	db.Db.Create(&pb.User{
@@ -32,7 +33,7 @@ func InsertUser(request *pb.DouyinUserRegisterRequest) (int64, string) {
 }
 
 // VerifyUser 验证密码
-func VerifyUser(request *pb.DouyinUserLoginRequest) (int64, string) {
+func VerifyUser(request *model.DouyinUserLoginRequest) (int64, string) {
 	var user pb.User
 	row := db.Db.Where("name=? and password=?", request.GetUsername(), request.GetPassword()).First(&user).RowsAffected
 	if row == 1 {
@@ -42,8 +43,8 @@ func VerifyUser(request *pb.DouyinUserLoginRequest) (int64, string) {
 }
 
 // GetUserInfo 查询用户信息
-func GetUserInfo(request *pb.DouyinUserRequest) pb.User {
-	user := pb.User{}
+func GetUserInfo(request *model.DouyinUserRequest) model.User {
+	user := model.User{}
 	db.Db.Select([]string{"id", "name", "follow_count", "follower_count"}).First(&user, request.GetUserId())
 	//userDto := pb.User{
 	//	Id:            user.GetId(),

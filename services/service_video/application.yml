@@ -1,5 +1,5 @@
 mode: dev
-port: 8081
+port: 8082
 
 # 远程服务器
 ssh:
@@ -18,13 +18,13 @@ mysql:
 redis:
   addr: 8.134.208.93
   port: 6379
-  db: 1
+  db: 2
 
 
 # 对象存储
 oss:
   bucket: https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com
   secret_id:
-  secret_key: 
+  secret_key:
 
 
