@@ -13,26 +13,28 @@ import (
 	"time"
 )
 
-var bucket = "https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com"
-
-// var bucket = Config.OssConfig.Bucket
-var secretId = Config.OssConfig.SecretId
-var secretKey = Config.OssConfig.SecretKey
-
 var client cos.Client
 
 // NewOssClient 生成Client
 func NewOssClient() *cos.Client {
+	bucket := Config.OssConfig.Bucket
+	secretId := Config.OssConfig.SecretId
+	secretKey := Config.OssConfig.SecretKey
+	fmt.Println("OssConfig--->", bucket, secretKey, secretId)
 	// 将 examplebucket-1250000000 和 COS_REGION 修改为用户真实的信息
 	u, _ := url.Parse(bucket)
 	// 用于 Get Service 查询，默认全地域 service.cos.myqcloud.com
 	su, _ := url.Parse("https://cos.ap-guangzhou.myqcloud.com")
 	b := &cos.BaseURL{BucketURL: u, ServiceURL: su}
+	env := os.Getenv("SECRETID")
+	fmt.Println("环境变量密钥", env)
 	// 1.永久密钥
 	client := cos.NewClient(b, &http.Client{
 		Transport: &cos.AuthorizationTransport{
-			SecretID:  os.Getenv(secretId),  // 用户的 SecretId，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参考 https://cloud.tencent.com/document/product/598/37140
-			SecretKey: os.Getenv(secretKey), // 用户的 SecretKey，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参考 https://cloud.tencent.com/document/product/598/37140
+			//SecretID:  os.Getenv("SECRETID"),
+			//SecretKey: os.Getenv("SECRETKEY"),
+			SecretID:  secretId,  // 用户的 SecretId，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参考 https://cloud.tencent.com/document/product/598/37140
+			SecretKey: secretKey, // 用户的 SecretKey，建议使用子账号密钥，授权遵循最小权限指引，降低使用风险。子账号密钥获取可参考 https://cloud.tencent.com/document/product/598/37140
 		},
 	})
 	return client
@@ -54,7 +56,6 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 	pathSlice := []string{"video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), fileName}
 	filePath := strings.Join(pathSlice, "/")
 	fmt.Println("video上传路径--->", filePath)
-	fmt.Println("adawdaw", bucket, secretKey, secretId)
 	// 通过本地文件上传对象
 	//_, err = c.Object.PutFromFile(context.Background(), name, "../test", nil)
 	//if err != nil {
@@ -77,7 +78,7 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 	fmt.Println("上传文件成功！！！")
 
 	// 生成play_url
-	playUrl := strings.Join([]string{bucket, filePath}, "/")
+	playUrl := strings.Join([]string{Config.OssConfig.Bucket, filePath}, "/")
 	// 生成cover_url---> inputName+videoName.jpg
 	picturePath := "https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture"
 	// 将fileName-->xxx.mp4替换成xxx.jpg

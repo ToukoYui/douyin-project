@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -24,4 +25,5 @@ func TestName(t *testing.T) {
 	fmt.Println(time.Unix(16757759911, 0))
 	fmt.Println(time.Unix(1675775991, 0).Format("2006-01-02 15:04:05"))
 
+	fmt.Printf("%s lives in %s.\n", os.Getenv("NAME"), os.Getenv("BURROW"))
 }
