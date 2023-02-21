@@ -8,5 +8,5 @@ package consts
  */
 
 const VIDEO_GET_KEY string = "video:getKey:"
-const VIDEO_CACHE_KEY string = "video:cache:"
+const VIDEO_CACHE_KEY string = "video:whole_cache:"
 const VIDEO_SINGLE_CACHE_KEY string = "video:single_cache:"
