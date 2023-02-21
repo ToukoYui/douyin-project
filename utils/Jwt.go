@@ -75,7 +75,7 @@ func ValidateToken(token string) bool {
 	if err != nil {
 		panic(any(fmt.Sprintf("获取Redis中的Token失败：%v", err)))
 	}
-	tokenInfo := JsontoStruct(result)
+	tokenInfo := JsonToStruct(result)
 	//redis校验token信息
 	if tokenInfo.UserId == myClaims.UserId && tokenInfo.UserName == myClaims.UserName {
 		return true

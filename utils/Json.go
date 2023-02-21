@@ -7,8 +7,16 @@ type TokenInfo struct {
 	UserName string `json:"username"`
 }
 
-func JsontoStruct(jsonStr string) TokenInfo {
+func JsonToStruct(jsonStr string) TokenInfo {
 	tokenInfo := TokenInfo{}
 	json.Unmarshal([]byte(jsonStr), &tokenInfo)
 	return tokenInfo
+}
+
+func StructToJson(value TokenInfo) string {
+	jsonString, err := json.Marshal(value)
+	if err != nil {
+		return ""
+	}
+	return string(jsonString)
 }

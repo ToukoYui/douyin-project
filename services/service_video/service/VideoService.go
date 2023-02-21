@@ -3,6 +3,7 @@ package service
 import (
 	"douyin-template/model"
 	"douyin-template/model/pb"
+	"douyin-template/services/consts"
 	"douyin-template/services/service_video/dao"
 	"douyin-template/utils"
 )
@@ -10,7 +11,6 @@ import (
 // UploadVideo 进行上传到oss和添加视频信息到video表
 func UploadVideo(request *model.DouyinPublishActionRequest) error {
 	data := request.GetData()
-
 	// todo 获取用户id
 	//dataArr := request.GetData()
 	//request.GetToken()
@@ -20,9 +20,9 @@ func UploadVideo(request *model.DouyinPublishActionRequest) error {
 	if upLoadErr != nil {
 		return upLoadErr
 	}
-	// 添加视频信息
+	// 添加视频信息,改动:这里修改为了自己实现的基于redis的全局唯一性算法
 	video := pb.Video{
-		Id:            utils.NewSnowId(),
+		Id:            utils.NextId(consts.VIDEO_GET_KEY),
 		UserId:        446553213450061057,
 		PlayUrl:       playUrl,
 		CoverUrl:      coverUrl,

@@ -4,9 +4,13 @@ import (
 	"context"
 	"douyin-template/model"
 	"douyin-template/model/pb"
+	"douyin-template/services/consts"
 	"douyin-template/services/service_user/db"
 	"douyin-template/services/service_video/rpc"
+	"douyin-template/utils"
 	"fmt"
+	"github.com/goccy/go-json"
+	"strconv"
 	"time"
 )
 
@@ -16,14 +20,43 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 	var videoList []pb.Video
 	latestTime := time.Unix(request.GetLatestTime(), 0)
 	fmt.Println("请求时间为：", latestTime)
-	row := db.Db.Where("created_time>=?", latestTime).Order("created_time desc").Find(&videoList).RowsAffected
-	if row <= 0 {
-		fmt.Sprintf("无查询结果,批量查询失败,查询时间参数：%v", latestTime)
+	/*添加缓存*/
+	ctx := context.Background()
+	//1.检查缓存中是否有数据
+	data := utils.RedisDb.Get(ctx, consts.VIDEO_CACHE_KEY)
+	fmt.Println("data是:", data)
+	resultList := make([]*model.VideoDto, len(videoList))
+	if data == nil {
+		//3. 无数据,请求数据并返回
+		//3.1 先请求数据库
+		/***********/
+		row := db.Db.Where("created_time>=?", latestTime).Order("created_time desc").Find(&videoList).RowsAffected
+		if row <= 0 {
+			fmt.Printf("无查询结果,批量查询失败,查询时间参数：%v", latestTime)
+		}
+		fmt.Printf("videoList结果大小：%d,结果列表:%#v\n", len(videoList), videoList)
+		//3.2 再重建缓存
+		jsonString, err := json.Marshal(videoList)
+		if err != nil {
+			return nil, 0
+		}
+		utils.RedisDb.Set(ctx, consts.VIDEO_CACHE_KEY, string(jsonString), -1)
+		fmt.Printf("缓存中没有数据,%s", videoList)
+	} else {
+		//否则的话就是有数据,那么就将这个数据解析
+		bytes, err := data.Bytes()
+		if err != nil {
+			return nil, 0
+		}
+		err = json.Unmarshal(bytes, videoList)
+		fmt.Printf("缓存中有数据,%s", videoList)
+		if err != nil {
+			return nil, 0
+		}
 	}
 
-	fmt.Printf("videoList结果大小：%d,结果列表:%#v\n", len(videoList), videoList)
-
-	resultList := make([]*model.VideoDto, len(videoList))
+	// 获取视频列表中的最早发布的时间
+	earlyTime := videoList[len(videoList)-1].CreatedAt
 	for i, item := range videoList {
 		//根据user_id查询User对象
 		var user model.User
@@ -43,14 +76,18 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 			Title:         item.GetTitle(),
 		}
 	}
-	fmt.Printf("结果大小：%d,结果列表:%#v\n", len(resultList), resultList)
-	// 获取视频列表中的最早发布的时间
-	earlyTime := videoList[len(videoList)-1].CreatedAt
 	return resultList, earlyTime.Unix()
 }
 
 // CreateVideoInfo 添加视频信息
 func CreateVideoInfo(video *pb.Video) {
+	ctx := context.Background()
+	//1.删除视频流缓存
+	utils.RedisDb.Del(ctx, consts.VIDEO_CACHE_KEY)
+	//2.删除用户视频缓存
+	//2.1 组装key
+	key := consts.VIDEO_SINGLE_CACHE_KEY + strconv.FormatInt(video.UserId, 10)
+	utils.RedisDb.Del(ctx, key)
 	row := db.Db.Create(video).RowsAffected
 	if row != 1 {
 		panic(any("添加视频信息失败！！！"))
@@ -59,15 +96,45 @@ func CreateVideoInfo(video *pb.Video) {
 
 // GetPublishVideoList 获取单个用户的发布视频列表
 func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.VideoDto {
+	ctx := context.Background()
+	/*添加缓存*/
+	//1. 组装key
+	key := consts.VIDEO_SINGLE_CACHE_KEY + strconv.FormatInt(request.UserId, 10)
+	//2. 查询是否有数据
+	data := utils.RedisDb.Get(ctx, key)
 	// 查询该用户发布过的视频信息
 	var videoList []model.Video
-	db.Db.Where("user_id=?", request.UserId).Find(&videoList)
+	if data == nil {
+		//3.1 重建缓存
+		db.Db.Where("user_id=?", request.UserId).Find(&videoList)
+		//3.2 序列化缓存数据
+		jsonString, err := json.Marshal(videoList)
+		if err != nil {
+			return nil
+		}
+		fmt.Printf("缓存中没有数据!%s", jsonString)
+		//3.3 将数据加入到缓存中
+		utils.RedisDb.Set(ctx, key, jsonString, -1)
+	} else {
+		//4. 走缓存
+		bytes, err := data.Bytes()
+		if err != nil {
+			return nil
+		}
+		//4.1 将缓存中的对象反序列化为videoList
+		err = json.Unmarshal(bytes, videoList)
+		fmt.Printf("缓存中有数据,%s", videoList)
+		if err != nil {
+			return nil
+		}
+	}
+
 	// 遍历包装
 	resultList := make([]*model.VideoDto, len(videoList))
 	fmt.Println("调用User服务查询对象")
 	for i, item := range videoList {
 		//调用user服务查询对象，根据user_id查询User对象，此处可以通过批量处理优化
-		userInfoResp, err := rpc.VideoToUserRpcClient.GetUserInfo(context.Background(), &model.DouyinUserRequest{
+		userInfoResp, err := rpc.VideoToUserRpcClient.GetUserInfo(ctx, &model.DouyinUserRequest{
 			UserId: item.GetUserId(),
 			Token:  request.GetToken(),
 		})

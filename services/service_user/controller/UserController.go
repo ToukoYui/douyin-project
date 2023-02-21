@@ -10,7 +10,7 @@ import (
 	"golang.org/x/time/rate"
 	"strconv"
 	"strings"
-	"time"
+	time "time"
 )
 
 type Server struct {
