@@ -4,8 +4,8 @@ import (
 	"douyin-template/model"
 	"douyin-template/services/service_user/db"
 	"douyin-template/services/service_video/controller"
+	"douyin-template/services/service_video/rpc"
 	"douyin-template/utils"
-	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -13,7 +13,7 @@ import (
 
 // Init 初始化一些连接和配置
 func Init() {
-	viper.SetConfigFile("./services/service_video/application.yml")
+	rpc.InitUserRpc()
 	utils.InitViper("./services/service_video/application.yml") // 初始化viper
 	db.InitDb(utils.Config.SshConfig, utils.Config.MysqlConfig) // mysql连接
 	utils.InitRedis(utils.Config.RedisConfig)                   //Redis连接
@@ -22,7 +22,7 @@ func Init() {
 
 func main() {
 	Init()
-	// 监听本地 5678 端口
+	// 监听本地 5679 端口
 	listen, err := net.Listen("tcp", ":5679")
 	if err != nil {
 		log.Fatal(err)

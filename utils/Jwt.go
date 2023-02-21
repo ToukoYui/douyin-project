@@ -49,7 +49,7 @@ func ParseToken(token string) (MyClaims, bool) {
 	myClaims := MyClaims{}
 	claims, err := jwt.ParseWithClaims(token, &myClaims, Secret())
 	if err != nil {
-		panic(any(fmt.Errorf("Token解析失败:%v", err)))
+		fmt.Errorf("Token解析失败:%v", err)
 	}
 	if !claims.Valid {
 		return MyClaims{}, false

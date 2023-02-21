@@ -1,9 +1,11 @@
 package dao
 
 import (
+	"context"
 	"douyin-template/model"
 	"douyin-template/model/pb"
 	"douyin-template/services/service_user/db"
+	"douyin-template/services/service_video/rpc"
 	"fmt"
 	"time"
 )
@@ -62,11 +64,19 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 	db.Db.Where("user_id=?", request.UserId).Find(&videoList)
 	// 遍历包装
 	resultList := make([]*model.VideoDto, len(videoList))
+	fmt.Println("调用User服务查询对象")
 	for i, item := range videoList {
-		//根据user_id查询User对象
-		var user model.User
-		db.Db.Select([]string{"id", "name", "follow_count", "follower_count"}).First(&user, item.GetUserId())
-		// 查询favorite表获取is_favorite
+		//调用user服务查询对象，根据user_id查询User对象，此处可以通过批量处理优化
+		userInfoResp, err := rpc.VideoToUserRpcClient.GetUserInfo(context.Background(), &model.DouyinUserRequest{
+			UserId: item.GetUserId(),
+			Token:  request.GetToken(),
+		})
+		if err != nil {
+			fmt.Sprintf("调用User服务查询对象失败%v", err)
+		}
+		user := *userInfoResp.GetUser()
+
+		// 查询favorite表获取is_favorite   todo 调用like服务查询is_favorite
 		favorite := pb.Favorite{}
 		db.Db.Select("is_favorite").Where("user_id=? and video_id=?", user.GetId(), item.GetId()).First(&favorite)
 		// 包装视频列表结果
