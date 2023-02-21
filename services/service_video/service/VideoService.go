@@ -1,17 +1,22 @@
 package service
 
 import (
+	"douyin-template/model"
 	"douyin-template/model/pb"
 	"douyin-template/services/service_video/dao"
 	"douyin-template/utils"
 )
 
 // UploadVideo 进行上传到oss和添加视频信息到video表
-func UploadVideo(request *pb.DouyinPublishActionRequest) error {
-	file := request.GetData()
-	request.GetToken()
+func UploadVideo(request *model.DouyinPublishActionRequest) error {
+	data := request.GetData()
+
+	// todo 获取用户id
+	//dataArr := request.GetData()
+	//request.GetToken()
+
 	// 上传到oss
-	playUrl, coverUrl, upLoadErr := utils.UploadVideo(file)
+	playUrl, coverUrl, upLoadErr := utils.UploadVideo(data)
 	if upLoadErr != nil {
 		return upLoadErr
 	}

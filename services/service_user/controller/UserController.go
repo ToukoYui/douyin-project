@@ -36,6 +36,7 @@ func (s *Server) Login(ctx context.Context, request *model.DouyinUserLoginReques
 	}
 	// 登录成功
 	if id, name := dao.VerifyUser(request); id != 0 {
+		fmt.Println("登录用户id：", id)
 		//生成Token
 		token := utils.CreateToken(id, name)
 		//  将id和name放进redis，用于token检验时匹配
@@ -56,6 +57,7 @@ func (s *Server) Login(ctx context.Context, request *model.DouyinUserLoginReques
 			Token:      token,
 		}, nil
 	}
+
 	return &model.DouyinUserLoginResponse{
 		StatusCode: 1,
 		StatusMsg:  "密码错误",

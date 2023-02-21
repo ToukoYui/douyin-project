@@ -27,9 +27,9 @@ func InitRouter(engine *gin.Engine) {
 	preGroup.POST("/user/login/", handlers.Login)
 
 	//video apis
-	//preGroup.GET("/feed/", handlers.Feed)
-	//preGroup.POST("/publish/action/", handlers.Publish)
-	//preGroup.GET("/publish/list/", handlers.PublishList)
+	preGroup.GET("/feed/", handlers.Feed)
+	preGroup.POST("/publish/action/", handlers.Publish)
+	preGroup.GET("/publish/list/", handlers.PublishList)
 }
 
 func main() {

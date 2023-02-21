@@ -68,7 +68,6 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 	//	panic(any(err))
 	//}
 	//defer fd.Close()
-	//reader, _ := io.Reader.Read(data)
 
 	_, err1 := c.Object.Put(context.Background(), filePath, file, nil)
 

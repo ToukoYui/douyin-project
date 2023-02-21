@@ -3,7 +3,7 @@ package rpc
 // InitRPC init rpc client
 func InitRPC() {
 	InitUserRpc()
-	//initFeedRpc()
+	initFeedRpc()
 	//initFavoriteRpc()
 	//initCommentRpc()
 	//initRelationRpc()

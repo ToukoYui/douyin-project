@@ -12,6 +12,7 @@ import (
 */
 
 var UserRpcClient model.UserSrvClient
+var FeedRpcClient model.FeedSrvClient
 
 // InitUserRpc 初始化User客户端
 func InitUserRpc() {
@@ -23,5 +24,4 @@ func InitUserRpc() {
 	}
 	//defer dial.Close()
 	UserRpcClient = model.NewUserSrvClient(dial)
-
 }

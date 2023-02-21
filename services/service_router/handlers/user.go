@@ -23,6 +23,7 @@ func Login(ctx *gin.Context) {
 	if err != nil {
 		fmt.Println("出错", err)
 	}
+	fmt.Println("响应：", *response)
 	//ctx.JSON(http.StatusOK, *response)
 	ctx.JSON(200, *response)
 }

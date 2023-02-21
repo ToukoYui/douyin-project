@@ -31,7 +31,7 @@ func main() {
 	s := grpc.NewServer()
 	// 将实现的接口注册进 gRPC 服务器
 	model.RegisterUserSrvServer(s, &controller.Server{})
-	log.Println("gRPC server starts running...")
+	log.Println("user server starts running...")
 	// 启动 gRPC 服务器
 	err = s.Serve(listen)
 	if err != nil {

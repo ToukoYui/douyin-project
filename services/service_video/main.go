@@ -2,8 +2,8 @@ package main
 
 import (
 	"douyin-template/model"
-	"douyin-template/services/service_user/controller"
 	"douyin-template/services/service_user/db"
+	"douyin-template/services/service_video/controller"
 	"douyin-template/utils"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
@@ -32,8 +32,8 @@ func main() {
 	// 创建 gRPC 服务器
 	s := grpc.NewServer()
 	// 将实现的接口注册进 gRPC 服务器
-	model.RegisterUserSrvServer(s, &controller.Server{})
-	log.Println("gRPC server starts running...")
+	model.RegisterFeedSrvServer(s, &controller.Server{})
+	log.Println("video server starts running...")
 	// 启动 gRPC 服务器
 	err = s.Serve(listen)
 	if err != nil {
