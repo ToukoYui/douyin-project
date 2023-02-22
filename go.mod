@@ -11,7 +11,6 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/sony/sonyflake v1.1.0
 	github.com/spf13/viper v1.15.0
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.194
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.41
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
 	golang.org/x/time v0.3.0

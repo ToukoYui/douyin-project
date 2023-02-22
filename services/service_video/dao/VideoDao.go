@@ -5,7 +5,8 @@ import (
 	"douyin-template/model"
 	"douyin-template/model/pb"
 	"douyin-template/services/consts"
-	"douyin-template/services/service_video/db"
+	"douyin-template/services/service_favorite/dao"
+	"douyin-template/services/service_user/db"
 	"douyin-template/services/service_video/rpc"
 	"douyin-template/utils"
 	"fmt"
@@ -164,14 +165,24 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 
 		// 查询favorite表获取is_favorite   todo 调用like服务查询is_favorite
 		favorite := pb.Favorite{}
-		db.Db.Select("is_favorite").Where("user_id=? and video_id=?", user.GetId(), item.GetId()).First(&favorite)
+		// 从redis中获取点赞数据
+		//1. 组装key
+		likedKey := consts.VIDEO_LIKED_KEY + strconv.FormatInt(item.GetId(), 10)
+		//2. 获取redis的对应的Zset大小
+		favoriteCount, err := utils.RedisDb.ZCard(ctx, likedKey).Result()
+		//3. 获取是否点赞过
+		if err != nil {
+			return nil
+		}
+		favorite.IsFavorite = dao.IsLike(user.GetId(), item.GetId())
 		// 包装视频列表结果
 		resultList[i] = &model.VideoDto{
-			Id:            item.GetId(),
-			Author:        &user,
-			PlayUrl:       item.GetPlayUrl(),
-			CoverUrl:      item.GetCoverUrl(),
-			FavoriteCount: item.GetFavoriteCount(),
+			Id:       item.GetId(),
+			Author:   &user,
+			PlayUrl:  item.GetPlayUrl(),
+			CoverUrl: item.GetCoverUrl(),
+			//修改此处
+			FavoriteCount: favoriteCount,
 			CommentCount:  item.GetCommentCount(),
 			IsFavorite:    favorite.IsFavorite,
 			Title:         item.GetTitle(),
