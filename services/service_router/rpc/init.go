@@ -4,7 +4,7 @@ package rpc
 func InitRPC() {
 	InitUserRpc()
 	initFeedRpc()
-	//initFavoriteRpc()
+	initFavoriteRpc()
 	//initCommentRpc()
 	//initRelationRpc()
 }

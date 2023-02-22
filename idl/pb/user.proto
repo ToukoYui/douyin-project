@@ -39,6 +39,7 @@ message douyin_user_response {
 message User {
   int64 id = 1; // 用户id
   string name = 2; // 用户名称
+  string password = 12;
   int64 follow_count = 3; // 关注总数
   int64 follower_count = 4; // 粉丝总数
   bool is_follow = 5; // true-已关注，false-未关注

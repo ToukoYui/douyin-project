@@ -71,11 +71,14 @@ message douyin_feed_response {
   int64 next_time = 4; // 本次返回的视频中，发布最早的时间，作为下次请求时的latest_time
 }
 
-
+message douyin_userid_and_videoid{
+  int64 user_id = 1;
+  int64 video_id = 2;
+}
 
 service FeedSrv{
   rpc GetUserFeed (douyin_feed_request) returns (douyin_feed_response) {}
-  //  rpc GetVideoById (video_id_request) returns (Video) {}
-  rpc PublishAction(douyin_publish_action_request) returns (douyin_publish_action_response);
-  rpc PublishList(douyin_publish_list_request) returns (douyin_publish_list_response);
+  rpc PublishAction(douyin_publish_action_request) returns (douyin_publish_action_response){}
+  rpc PublishList(douyin_publish_list_request) returns (douyin_publish_list_response){}
+  rpc GetLikedVideo (douyin_userid_and_videoid) returns (VideoDto) {}
 }

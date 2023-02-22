@@ -12,7 +12,7 @@
 - 接口限流: "golang.org/x/time/rate"
 
 # 说明
-- 测试用例：https://www.apifox.cn/apidoc/shared-581228eb-4ef0-4e15-ae1e-35e08986483d
+- 测试用例：https://www.apifox.cn/apidoc/shared-37482a3f-1ede-4edc-bcdc-aa8a47389b24
 - 目前实现了基本接口，还没加Redis缓存
 - 用的数据库在云服务器，也可以自己在本机上运行sql添加数据
 - app在鸿蒙系统运行时视频发布的功能会失效，请求发不出来

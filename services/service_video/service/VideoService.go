@@ -2,7 +2,6 @@ package service
 
 import (
 	"douyin-template/model"
-	"douyin-template/model/pb"
 	"douyin-template/services/service_video/dao"
 	"douyin-template/utils"
 )
@@ -21,7 +20,7 @@ func UploadVideo(request *model.DouyinPublishActionRequest) error {
 		return upLoadErr
 	}
 	// 添加视频信息
-	video := pb.Video{
+	video := model.Video{
 		Id:            utils.NewSnowId(),
 		UserId:        446553213450061057,
 		PlayUrl:       playUrl,

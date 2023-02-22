@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin-template/model"
 	"douyin-template/services/service_video/dao"
+	"douyin-template/services/service_video/rpc"
 	"douyin-template/services/service_video/service"
 	"fmt"
 	"github.com/goccy/go-json"
@@ -65,4 +66,31 @@ func (s *Server) GetUserFeed(ctx context.Context, request *model.DouyinFeedReque
 		VideoList:  videoInfoList,
 		NextTime:   nextTime,
 	}, nil
+}
+
+// GetLikedVideo 获取用户点赞过的视频列表，提供给favorite服务调用
+func (s *Server) GetLikedVideo(ctx context.Context, request *model.DouyinUseridAndVideoid) (*model.VideoDto, error) {
+	fmt.Println()
+	// 根据userid和videoid查询video
+	video := dao.GetLikedVideo(request)
+	userReq := model.DouyinUserRequest{
+		UserId: video.GetUserId(),
+	}
+	fmt.Println("Video调用User。。。")
+	response, err := rpc.VideoToUserRpcClient.GetUserInfo(context.Background(), &userReq)
+	if err != nil {
+		fmt.Sprintf("出错:%v", err)
+	}
+
+	return &model.VideoDto{
+		Id:            video.GetId(),
+		Author:        response.GetUser(),
+		PlayUrl:       video.GetPlayUrl(),
+		CoverUrl:      video.GetCoverUrl(),
+		FavoriteCount: video.GetFavoriteCount(),
+		CommentCount:  video.GetCommentCount(),
+		IsFavorite:    video.GetIsFavorite(),
+		Title:         video.GetTitle(),
+	}, nil
+
 }

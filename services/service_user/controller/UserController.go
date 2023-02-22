@@ -108,11 +108,13 @@ type TokenInfo struct {
 
 func (s *Server) GetUserInfo(ctx context.Context, request *model.DouyinUserRequest) (*model.DouyinUserResponse, error) {
 	// token验证
-	if !utils.ValidateToken(request.GetToken()) {
-		return &model.DouyinUserResponse{
-			StatusCode: 1,
-			StatusMsg:  "Token解析错误，验证失败",
-		}, nil
+	if request.GetToken() != "" {
+		if !utils.ValidateToken(request.GetToken()) {
+			return &model.DouyinUserResponse{
+				StatusCode: 1,
+				StatusMsg:  "Token解析错误，验证失败",
+			}, nil
+		}
 	}
 	// 获取用户信息
 	userInfo := dao.GetUserInfo(request)

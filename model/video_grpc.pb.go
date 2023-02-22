@@ -23,9 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FeedSrvClient interface {
 	GetUserFeed(ctx context.Context, in *DouyinFeedRequest, opts ...grpc.CallOption) (*DouyinFeedResponse, error)
-	// rpc GetVideoById (video_id_request) returns (Video) {}
 	PublishAction(ctx context.Context, in *DouyinPublishActionRequest, opts ...grpc.CallOption) (*DouyinPublishActionResponse, error)
 	PublishList(ctx context.Context, in *DouyinPublishListRequest, opts ...grpc.CallOption) (*DouyinPublishListResponse, error)
+	GetLikedVideo(ctx context.Context, in *DouyinUseridAndVideoid, opts ...grpc.CallOption) (*VideoDto, error)
 }
 
 type feedSrvClient struct {
@@ -63,14 +63,23 @@ func (c *feedSrvClient) PublishList(ctx context.Context, in *DouyinPublishListRe
 	return out, nil
 }
 
+func (c *feedSrvClient) GetLikedVideo(ctx context.Context, in *DouyinUseridAndVideoid, opts ...grpc.CallOption) (*VideoDto, error) {
+	out := new(VideoDto)
+	err := c.cc.Invoke(ctx, "/video.FeedSrv/GetLikedVideo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FeedSrvServer is the server API for FeedSrv service.
 // All implementations must embed UnimplementedFeedSrvServer
 // for forward compatibility
 type FeedSrvServer interface {
 	GetUserFeed(context.Context, *DouyinFeedRequest) (*DouyinFeedResponse, error)
-	// rpc GetVideoById (video_id_request) returns (Video) {}
 	PublishAction(context.Context, *DouyinPublishActionRequest) (*DouyinPublishActionResponse, error)
 	PublishList(context.Context, *DouyinPublishListRequest) (*DouyinPublishListResponse, error)
+	GetLikedVideo(context.Context, *DouyinUseridAndVideoid) (*VideoDto, error)
 	mustEmbedUnimplementedFeedSrvServer()
 }
 
@@ -86,6 +95,9 @@ func (UnimplementedFeedSrvServer) PublishAction(context.Context, *DouyinPublishA
 }
 func (UnimplementedFeedSrvServer) PublishList(context.Context, *DouyinPublishListRequest) (*DouyinPublishListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PublishList not implemented")
+}
+func (UnimplementedFeedSrvServer) GetLikedVideo(context.Context, *DouyinUseridAndVideoid) (*VideoDto, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetLikedVideo not implemented")
 }
 func (UnimplementedFeedSrvServer) mustEmbedUnimplementedFeedSrvServer() {}
 
@@ -154,6 +166,24 @@ func _FeedSrv_PublishList_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FeedSrv_GetLikedVideo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DouyinUseridAndVideoid)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeedSrvServer).GetLikedVideo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/video.FeedSrv/GetLikedVideo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeedSrvServer).GetLikedVideo(ctx, req.(*DouyinUseridAndVideoid))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FeedSrv_ServiceDesc is the grpc.ServiceDesc for FeedSrv service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -172,6 +202,10 @@ var FeedSrv_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PublishList",
 			Handler:    _FeedSrv_PublishList_Handler,
+		},
+		{
+			MethodName: "GetLikedVideo",
+			Handler:    _FeedSrv_GetLikedVideo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

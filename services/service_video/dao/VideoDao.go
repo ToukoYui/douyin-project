@@ -13,7 +13,7 @@ import (
 // GetVideoInfoList 获取视频信息
 func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int64) {
 	// 根据LatestTime降序查询视频列表
-	var videoList []pb.Video
+	var videoList []model.Video
 	latestTime := time.Unix(request.GetLatestTime(), 0)
 	fmt.Println("请求时间为：", latestTime)
 	row := db.Db.Where("created_time>=?", latestTime).Order("created_time desc").Find(&videoList).RowsAffected
@@ -50,7 +50,7 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 }
 
 // CreateVideoInfo 添加视频信息
-func CreateVideoInfo(video *pb.Video) {
+func CreateVideoInfo(video *model.Video) {
 	row := db.Db.Create(video).RowsAffected
 	if row != 1 {
 		panic(any("添加视频信息失败！！！"))
@@ -92,5 +92,11 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 		}
 	}
 	return resultList
+}
 
+// GetLikedVideo 根据userid和videoid查询video
+func GetLikedVideo(request *model.DouyinUseridAndVideoid) *model.Video {
+	video := model.Video{}
+	db.Db.Where("user_id=? and id=?", request.GetUserId(), request.GetVideoId()).First(&video)
+	return &video
 }

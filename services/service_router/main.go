@@ -30,6 +30,12 @@ func InitRouter(engine *gin.Engine) {
 	preGroup.GET("/feed/", handlers.Feed)
 	preGroup.POST("/publish/action/", handlers.Publish)
 	preGroup.GET("/publish/list/", handlers.PublishList)
+
+	// extra apis - I 互动：评论和点赞
+	preGroup.POST("/favorite/action/", handlers.FavoriteAction)
+	preGroup.GET("/favorite/list/", handlers.FavoriteList)
+	//preGroup.POST("/comment/action/", controller.CommentAction)
+	//preGroup.GET("/comment/list/", controller.CommentList)
 }
 
 func main() {

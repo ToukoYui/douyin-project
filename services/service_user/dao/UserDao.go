@@ -2,14 +2,13 @@ package dao
 
 import (
 	"douyin-template/model"
-	"douyin-template/model/pb"
 	"douyin-template/services/service_user/db"
 	"douyin-template/utils"
 )
 
 // IsUserExist 注册前查询表中是否存在该user
 func IsUserExist(username string) bool {
-	var user pb.User
+	var user model.User
 	row := db.Db.Where("name=?", username).First(&user).RowsAffected
 	// 无查询结果
 	if row > 0 {
@@ -22,7 +21,7 @@ func IsUserExist(username string) bool {
 func InsertUser(request *model.DouyinUserRegisterRequest) (int64, string) {
 	// 生成唯一id
 	id := utils.NewSnowId()
-	db.Db.Create(&pb.User{
+	db.Db.Create(&model.User{
 		Id:            id,
 		Name:          request.Username,
 		Password:      request.Password,
@@ -34,7 +33,7 @@ func InsertUser(request *model.DouyinUserRegisterRequest) (int64, string) {
 
 // VerifyUser 验证密码
 func VerifyUser(request *model.DouyinUserLoginRequest) (int64, string) {
-	var user pb.User
+	var user model.User
 	row := db.Db.Where("name=? and password=?", request.GetUsername(), request.GetPassword()).First(&user).RowsAffected
 	if row == 1 {
 		return user.Id, user.GetName()
