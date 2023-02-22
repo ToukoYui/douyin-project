@@ -31,7 +31,7 @@ func existsKey(key string) bool {
 // GetVideoInfoList 获取视频信息
 func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int64) {
 	// 根据LatestTime降序查询视频列表
-	var videoList []pb.Video
+	var videoList []model.Video
 	latestTime := time.Unix(request.GetLatestTime(), 0)
 	fmt.Println("请求时间为：", latestTime)
 	/*添加缓存*/
@@ -60,7 +60,7 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 	} else {
 		//否则的话就是有数据,那么就将这个数据解析
 		bytes := []byte(data.Val())
-		err := json.Unmarshal(bytes, videoList)
+		err := json.Unmarshal(bytes, &videoList) //要传指针
 		fmt.Printf("缓存中有数据:%s\n", videoList)
 		if err != nil {
 			return nil, 0
@@ -98,7 +98,7 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 }
 
 // CreateVideoInfo 添加视频信息
-func CreateVideoInfo(video *pb.Video) {
+func CreateVideoInfo(video *model.Video) {
 	ctx := context.Background()
 	//1.删除视频流缓存
 	utils.RedisDb.Del(ctx, consts.VIDEO_CACHE_KEY)
@@ -135,6 +135,7 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 		utils.RedisDb.Set(ctx, key, jsonString, 0)
 	} else {
 		//4. 走缓存
+		data := utils.RedisDb.Get(ctx, key)
 		bytes, err := data.Bytes()
 		if err != nil {
 			return nil
@@ -178,4 +179,11 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 	}
 	return resultList
 
+}
+
+// GetLikedVideo 根据userid和videoid查询video
+func GetLikedVideo(request *model.DouyinUseridAndVideoid) *model.Video {
+	video := model.Video{}
+	db.Db.Where("user_id=? and id=?", request.GetUserId(), request.GetVideoId()).First(&video)
+	return &video
 }

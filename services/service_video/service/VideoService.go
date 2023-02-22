@@ -2,7 +2,6 @@ package service
 
 import (
 	"douyin-template/model"
-	"douyin-template/model/pb"
 	"douyin-template/services/consts"
 	"douyin-template/services/service_video/dao"
 	"douyin-template/utils"
@@ -21,7 +20,7 @@ func UploadVideo(request *model.DouyinPublishActionRequest) error {
 		return upLoadErr
 	}
 	// 添加视频信息,改动:这里修改为了自己实现的基于redis的全局唯一性算法
-	video := pb.Video{
+	video := model.Video{
 		Id:            utils.NextId(consts.VIDEO_GET_KEY),
 		UserId:        446553213450061057,
 		PlayUrl:       playUrl,
