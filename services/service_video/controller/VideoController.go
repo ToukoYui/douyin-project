@@ -10,12 +10,6 @@ import (
 	"github.com/goccy/go-json"
 )
 
-// Feed 视频流接口
-
-//func (s *Server) GetUserInfo(ctx context.Context, request *model.DouyinUserRequest) (*model.DouyinUserResponse, error) {
-//
-//}
-
 type Server struct {
 	// 继承 protoc-gen-go-grpc 生成的服务端代码
 	model.UnimplementedFeedSrvServer

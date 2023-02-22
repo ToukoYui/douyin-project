@@ -7,14 +7,11 @@ import (
 	"log"
 )
 
-/**
-创建各个模块的RPC客户端
-*/
+// CommentToUserRpcClient 用于comment服务向user服务发送请求
+var CommentToUserRpcClient model.UserSrvClient
 
-var UserRpcClient model.UserSrvClient
-
-// InitUserRpc 初始化User客户端
-func InitUserRpc() {
+// InitCommentRpc 初始化User客户端
+func InitCommentRpc() {
 	// 连接服务端，因为我们没有SSL证书，因此这里需要禁用安全传输
 	dial, err := grpc.Dial("127.0.0.1:5678", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -22,5 +19,5 @@ func InitUserRpc() {
 		return
 	}
 	//defer dial.Close()
-	UserRpcClient = model.NewUserSrvClient(dial)
+	CommentToUserRpcClient = model.NewUserSrvClient(dial)
 }

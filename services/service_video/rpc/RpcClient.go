@@ -18,6 +18,5 @@ func InitUserRpc() {
 		log.Fatal(err)
 		return
 	}
-	//defer dial.Close()
 	VideoToUserRpcClient = model.NewUserSrvClient(dial)
 }

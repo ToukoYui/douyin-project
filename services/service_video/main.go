@@ -2,8 +2,8 @@ package main
 
 import (
 	"douyin-template/model"
-	"douyin-template/services/service_user/db"
 	"douyin-template/services/service_video/controller"
+	"douyin-template/services/service_video/db"
 	"douyin-template/services/service_video/rpc"
 	"douyin-template/utils"
 	"google.golang.org/grpc"

@@ -5,7 +5,7 @@ import (
 	"douyin-template/model"
 	"douyin-template/model/pb"
 	"douyin-template/services/consts"
-	"douyin-template/services/service_user/db"
+	"douyin-template/services/service_video/db"
 	"douyin-template/services/service_video/rpc"
 	"douyin-template/utils"
 	"fmt"

@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/ssh"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"net"
 )
 
@@ -48,6 +49,7 @@ func InitDb(sshConfig utils.SSH, mysqlConfig utils.Mysql) {
 	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt:            true,
 		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(logger.Info), // 打印所有sql
 	})
 	if err != nil {
 		panic(any("数据库连接失败！！！"))

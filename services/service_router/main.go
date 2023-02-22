@@ -34,8 +34,8 @@ func InitRouter(engine *gin.Engine) {
 	// extra apis - I 互动：评论和点赞
 	preGroup.POST("/favorite/action/", handlers.FavoriteAction)
 	preGroup.GET("/favorite/list/", handlers.FavoriteList)
-	//preGroup.POST("/comment/action/", controller.CommentAction)
-	//preGroup.GET("/comment/list/", controller.CommentList)
+	preGroup.POST("/comment/action/", handlers.CommentAction)
+	preGroup.GET("/comment/list/", handlers.CommentList)
 }
 
 func main() {

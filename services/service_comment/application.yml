@@ -1,0 +1,30 @@
+mode: dev
+port: 8084
+
+# 远程服务器
+ssh:
+  addr: 8.134.208.93
+  port: 22
+  usr: root
+  secret: Yukino123
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  usr: root
+  pwd: Touko217
+  db: dy_user
+
+redis:
+  addr: 8.134.208.93
+  port: 6379
+  db: 1
+
+
+# 对象存储
+oss:
+  bucket: https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com
+  secret_id:
+  secret_key:
+
+
