@@ -50,9 +50,10 @@ func (s *Server) PublishAction(ctx context.Context, request *model.DouyinPublish
 
 // GetUserFeed 获取视频流接口实现
 func (s *Server) GetUserFeed(ctx context.Context, request *model.DouyinFeedRequest) (*model.DouyinFeedResponse, error) {
-	videoInfoList, nextTime := dao.GetVideoInfoList(request)
-	// todo redis缓存
+	//todoHandler:张庭杰 处理时间:2023年2月21日21:21:51
+	//1. 组装redis中的key
 
+	videoInfoList, nextTime := dao.GetVideoInfoList(request)
 	// 控制台打印结果，可以不要
 	data, err := json.Marshal(videoInfoList)
 	if err != nil {

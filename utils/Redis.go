@@ -9,6 +9,7 @@ import (
 var RedisDb *redis.Client
 
 func InitRedis(config Redis) {
+	fmt.Println("Redis已经连接...")
 	db, _ := strconv.Atoi(config.Db)
 	//fmt.Println("redis", Config.RedisConfig.Addr)
 	RedisDb = redis.NewClient(&redis.Options{
