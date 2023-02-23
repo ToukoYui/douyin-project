@@ -29,6 +29,7 @@ func (s *Server) CommentAction(ctx context.Context, request *model.DouyinComment
 		// 生成comment唯一id
 		id := utils.NewSnowId()
 		// 生成日期 MM-dd
+		//creatData := time.Now().Format("01-02")
 		month := time.Now().Month().String()
 		day := strconv.Itoa(time.Now().Day())
 		creatData := strings.Join([]string{month, day}, "-")

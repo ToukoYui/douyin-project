@@ -50,6 +50,7 @@ func InsertComment(comment model.Comment) error {
 	// video表的评论数+1
 
 	// 1.加1 2.减1
+	log.Println("comment调用video")
 	_, err = rpc.CommentTOVideoRpcClient.ChangeCommentCount(context.Background(), &model.DouyinUseridAndVideoid{
 		UserId:  1,
 		VideoId: comment.GetVideoId(),
@@ -73,7 +74,12 @@ func DeleteComment(id int64) error {
 		return errors.New("del comment is not exist")
 	}
 	//数据库中删除评论-更新评论状态为-1
-	err := db.Db.Model(model.Comment{}).Where("id = ?", id).Update("cancel", 1).Error
+	log.Println("comment调用video")
+	_, err := rpc.CommentTOVideoRpcClient.ChangeCommentCount(context.Background(), &model.DouyinUseridAndVideoid{
+		UserId:  2,
+		VideoId: id,
+	})
+	err = db.Db.Model(model.Comment{}).Where("id = ?", id).Update("cancel", 1).Error
 	if err != nil {
 		log.Println("CommentDao-DeleteComment: return del comment failed") //函数返回提示错误信息
 		return errors.New("del comment failed")

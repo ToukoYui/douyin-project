@@ -9,6 +9,7 @@ import (
 	"douyin-template/services/service_video/service"
 	"fmt"
 	"github.com/goccy/go-json"
+	"log"
 )
 
 type Server struct {
@@ -96,7 +97,7 @@ func (s *Server) ChangeCommentCount(ctx context.Context, request *model.DouyinUs
 	if rowsAffected <= 0 {
 		fmt.Println("查询video无结果")
 	}
-
+	log.Printf("查询结果为%v行", rowsAffected)
 	if request.GetUserId() == 1 { //评论数加1
 		err := db.Db.Model(&model.Video{}).Where("id=?", request.GetVideoId()).Update("comment_count", video.GetCommentCount()+1).Error
 		if err != nil {

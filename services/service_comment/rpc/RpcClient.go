@@ -20,7 +20,12 @@ func InitCommentRpc() {
 		log.Fatal(err)
 		return
 	}
+	dial2, err := grpc.Dial("127.0.0.1:5679", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	//defer dial.Close()
 	CommentToUserRpcClient = model.NewUserSrvClient(dial)
-	CommentTOVideoRpcClient = model.NewFeedSrvClient(dial)
+	CommentTOVideoRpcClient = model.NewFeedSrvClient(dial2)
 }
