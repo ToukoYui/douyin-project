@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"douyin-template/model"
 	"douyin-template/services/consts"
 	"douyin-template/services/service_video/dao"
@@ -9,13 +10,11 @@ import (
 
 // UploadVideo 进行上传到oss和添加视频信息到video表
 func UploadVideo(request *model.DouyinPublishActionRequest) error {
-	data := request.GetData()
-	// todo 获取用户id
-	//dataArr := request.GetData()
-	//request.GetToken()
+	dataArr := request.GetData()
+	reader := bytes.NewReader(dataArr)
 
 	// 上传到oss
-	playUrl, coverUrl, upLoadErr := utils.UploadVideo(data)
+	playUrl, coverUrl, upLoadErr := utils.UploadVideo(reader, request.GetTitle())
 	if upLoadErr != nil {
 		return upLoadErr
 	}

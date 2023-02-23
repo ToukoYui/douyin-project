@@ -6,6 +6,7 @@ import (
 	"douyin-template/services/service_router/rpc"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"strconv"
 	"time"
 )
@@ -28,18 +29,20 @@ func PublishList(ctx *gin.Context) {
 }
 
 func Publish(ctx *gin.Context) {
-	data, _ := ctx.FormFile("data")
+	fileHeader, _ := ctx.FormFile("data")
+	open, err2 := fileHeader.Open()
+	if err2 != nil {
+		panic(any("打开视频流失败"))
+	}
 
 	//var dataArr []byte
-	//open, err2 := data.Open()
-	//if err2 != nil {
-	//	panic(any("打开视频流失败"))
-	//}
+	fileByte, err := ioutil.ReadAll(open)
+
 	//open.Read(dataArr)
 
 	request := model.DouyinPublishActionRequest{
 		Token: ctx.PostForm("token"),
-		Data:  data,
+		Data:  fileByte,
 		Title: ctx.PostForm("title"),
 	}
 	response, err := rpc.FeedRpcClient.PublishAction(context.Background(), &request)

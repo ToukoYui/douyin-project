@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/tencentyun/cos-go-sdk-v5"
-	"mime/multipart"
+	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -40,11 +41,12 @@ func NewOssClient() *cos.Client {
 	return client
 }
 
-func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
-	file, err := FileHeader.Open()
-	if err != nil {
-		panic(any("打开文件失败!!!"))
-	}
+func UploadVideo(reader io.Reader, fileName string) (string, string, error) {
+	//file, err := FileHeader.Open()
+	//if err != nil {
+	//	panic(any("打开文件失败!!!"))
+	//}
+
 	c := NewOssClient()
 	// 对象键（Key）是对象在存储桶中的唯一标识。
 	// 例如，在对象的访问域名 `examplebucket-1250000000.cos.COS_REGION.myqcloud.com/test/objectPut.go` 中，对象键为 test/objectPut.go
@@ -52,9 +54,11 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 
 	// 拼接文件名-> video/yyyy/MM/dd/filename.xxx
 	now := time.Now()
-	fileName := FileHeader.Filename
 	pathSlice := []string{"video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), fileName}
 	filePath := strings.Join(pathSlice, "/")
+	formatstr := strconv.FormatInt(time.Now().Unix(), 10)
+	filePath = strings.Join([]string{filePath, formatstr}, "_")
+	filePath = strings.Join([]string{filePath, "mp4"}, ".")
 	fmt.Println("video上传路径--->", filePath)
 	// 通过本地文件上传对象
 	//_, err = c.Object.PutFromFile(context.Background(), name, "../test", nil)
@@ -69,9 +73,10 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 	//}
 	//defer fd.Close()
 
-	_, err1 := c.Object.Put(context.Background(), filePath, file, nil)
+	_, err1 := c.Object.Put(context.Background(), filePath, reader, nil)
 
 	if err1 != nil {
+		log.Printf("上传视频失败：%v", err1)
 		return "", "", err1
 	}
 	fmt.Println("上传文件成功！！！")
@@ -81,7 +86,7 @@ func UploadVideo(FileHeader *multipart.FileHeader) (string, string, error) {
 	// 生成cover_url---> inputName+videoName.jpg
 	picturePath := "https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture"
 	// 将fileName-->xxx.mp4替换成xxx.jpg
-	pictureName := strings.Replace(fileName, "mp4", "jpg", 1)
+	pictureName := strings.Replace(filePath, "mp4", "jpg", 1)
 	pathSlice2 := []string{picturePath, "video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), pictureName}
 	// example：https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture/video/YY/MM/dd/fileName.jpg
 	coverUrl := strings.Join(pathSlice2, "/")

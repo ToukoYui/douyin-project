@@ -79,6 +79,19 @@ func (s *Server) GetLikedVideo(ctx context.Context, request *model.DouyinUseridA
 		fmt.Sprintf("出错:%v", err)
 	}
 
+	isFavorite, err := rpc.VideoToFavoriteRpcClient.CheckIsFavorite(context.Background(), &model.IsFavoriteRequest{
+		UserId:  request.GetUserId(),
+		VideoId: request.GetVideoId(),
+	})
+	if err != nil {
+		log.Printf("video调用favorite失败：%v", err)
+	}
+	var isFav bool
+	if isFavorite.GetIsFavorite() == 1 {
+		isFav = true
+	} else {
+		isFav = false
+	}
 	return &model.VideoDto{
 		Id:            video.GetId(),
 		Author:        response.GetUser(),
@@ -86,7 +99,7 @@ func (s *Server) GetLikedVideo(ctx context.Context, request *model.DouyinUseridA
 		CoverUrl:      video.GetCoverUrl(),
 		FavoriteCount: video.GetFavoriteCount(),
 		CommentCount:  video.GetCommentCount(),
-		IsFavorite:    video.GetIsFavorite(),
+		IsFavorite:    isFav,
 		Title:         video.GetTitle(),
 	}, nil
 }

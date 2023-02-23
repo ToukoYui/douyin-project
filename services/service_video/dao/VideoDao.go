@@ -41,7 +41,7 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 		//3. 无数据,请求数据并返回
 		//3.1 先请求数据库
 		/***********/
-		row := db.Db.Where("created_time>=?", latestTime).Order("created_time desc").Find(&videoList).RowsAffected
+		row := db.Db.Where("created_time<=?", latestTime).Order("created_time desc").Find(&videoList).RowsAffected
 		if row <= 0 {
 			fmt.Printf("无查询结果,批量查询失败,查询时间参数：%v", latestTime)
 		}
