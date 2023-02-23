@@ -20,6 +20,12 @@ func InitUserRpc() {
 		log.Fatal(err)
 		return
 	}
+
+	dial2, err := grpc.Dial("127.0.0.1:5680", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	VideoToUserRpcClient = model.NewUserSrvClient(dial)
-	VideoToFavoriteRpcClient = model.NewFavoriteSrvClient(dial)
+	VideoToFavoriteRpcClient = model.NewFavoriteSrvClient(dial2)
 }

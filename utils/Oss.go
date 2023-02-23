@@ -87,7 +87,8 @@ func UploadVideo(reader io.Reader, fileName string) (string, string, error) {
 	picturePath := "https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture"
 	// 将fileName-->xxx.mp4替换成xxx.jpg
 	pictureName := strings.Replace(filePath, "mp4", "jpg", 1)
-	pathSlice2 := []string{picturePath, "video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), pictureName}
+	//pathSlice2 := []string{picturePath, "video", strconv.Itoa(now.Year()), strconv.Itoa(int(now.Month())), strconv.Itoa(now.Day()), pictureName}
+	pathSlice2 := []string{picturePath, pictureName}
 	// example：https://douyin-1313537069.cos.ap-guangzhou.myqcloud.com/picture/video/YY/MM/dd/fileName.jpg
 	coverUrl := strings.Join(pathSlice2, "/")
 	fmt.Println("cover上传路径--->", coverUrl)
