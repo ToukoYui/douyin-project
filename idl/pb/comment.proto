@@ -14,7 +14,7 @@ message douyin_comment_action_request {
 message douyin_comment_action_response {
   int32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
-  Comment comment = 3; // 评论成功返回评论内容，不需要重新拉取整个列表
+  CommentDto Comment = 3; // 评论成功返回评论内容，不需要重新拉取整个列表
 }
 
 message douyin_comment_list_request {
@@ -25,7 +25,7 @@ message douyin_comment_list_request {
 message douyin_comment_list_response {
   int32 status_code = 1; // 状态码，0-成功，其他值-失败
   string status_msg = 2; // 返回状态描述
-  repeated Comment comment_list = 3; // 评论列表
+  repeated CommentDto comment_list = 3; // 评论列表
 }
 
 
@@ -45,12 +45,22 @@ message User {
 
 message Comment {
   int64 id = 1; // 视频评论id
+  int64 video_id= 2; // 视频id
+  string content = 3; // 评论内容
+  string create_data = 4; // 评论发布日期，格式 mm-dd
+  int64 cancel = 5;
+  int64 user_id = 6;
+}
+
+
+message CommentDto {
+  int64 id = 1; // 视频评论id
   User user = 2; // 评论用户信息
   string content = 3; // 评论内容
-  string create_date = 4; // 评论发布日期，格式 mm-dd
+  string create_data = 4; // 评论发布日期，格式 mm-dd
 }
 
 service CommentSrv{
   rpc CommentAction (douyin_comment_action_request) returns (douyin_comment_action_response) {}
-  rpc FavoriteList (douyin_comment_list_request) returns (douyin_comment_list_response) {}
+  rpc CommentList (douyin_comment_list_request) returns (douyin_comment_list_response) {}
 }

@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommentSrvClient interface {
 	CommentAction(ctx context.Context, in *DouyinCommentActionRequest, opts ...grpc.CallOption) (*DouyinCommentActionResponse, error)
-	FavoriteList(ctx context.Context, in *DouyinCommentListRequest, opts ...grpc.CallOption) (*DouyinCommentListResponse, error)
+	CommentList(ctx context.Context, in *DouyinCommentListRequest, opts ...grpc.CallOption) (*DouyinCommentListResponse, error)
 }
 
 type commentSrvClient struct {
@@ -43,9 +43,9 @@ func (c *commentSrvClient) CommentAction(ctx context.Context, in *DouyinCommentA
 	return out, nil
 }
 
-func (c *commentSrvClient) FavoriteList(ctx context.Context, in *DouyinCommentListRequest, opts ...grpc.CallOption) (*DouyinCommentListResponse, error) {
+func (c *commentSrvClient) CommentList(ctx context.Context, in *DouyinCommentListRequest, opts ...grpc.CallOption) (*DouyinCommentListResponse, error) {
 	out := new(DouyinCommentListResponse)
-	err := c.cc.Invoke(ctx, "/comment.CommentSrv/FavoriteList", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/comment.CommentSrv/CommentList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *commentSrvClient) FavoriteList(ctx context.Context, in *DouyinCommentLi
 // for forward compatibility
 type CommentSrvServer interface {
 	CommentAction(context.Context, *DouyinCommentActionRequest) (*DouyinCommentActionResponse, error)
-	FavoriteList(context.Context, *DouyinCommentListRequest) (*DouyinCommentListResponse, error)
+	CommentList(context.Context, *DouyinCommentListRequest) (*DouyinCommentListResponse, error)
 	mustEmbedUnimplementedCommentSrvServer()
 }
 
@@ -68,8 +68,8 @@ type UnimplementedCommentSrvServer struct {
 func (UnimplementedCommentSrvServer) CommentAction(context.Context, *DouyinCommentActionRequest) (*DouyinCommentActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommentAction not implemented")
 }
-func (UnimplementedCommentSrvServer) FavoriteList(context.Context, *DouyinCommentListRequest) (*DouyinCommentListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FavoriteList not implemented")
+func (UnimplementedCommentSrvServer) CommentList(context.Context, *DouyinCommentListRequest) (*DouyinCommentListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CommentList not implemented")
 }
 func (UnimplementedCommentSrvServer) mustEmbedUnimplementedCommentSrvServer() {}
 
@@ -102,20 +102,20 @@ func _CommentSrv_CommentAction_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CommentSrv_FavoriteList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CommentSrv_CommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DouyinCommentListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CommentSrvServer).FavoriteList(ctx, in)
+		return srv.(CommentSrvServer).CommentList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/comment.CommentSrv/FavoriteList",
+		FullMethod: "/comment.CommentSrv/CommentList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentSrvServer).FavoriteList(ctx, req.(*DouyinCommentListRequest))
+		return srv.(CommentSrvServer).CommentList(ctx, req.(*DouyinCommentListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -132,8 +132,8 @@ var CommentSrv_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CommentSrv_CommentAction_Handler,
 		},
 		{
-			MethodName: "FavoriteList",
-			Handler:    _CommentSrv_FavoriteList_Handler,
+			MethodName: "CommentList",
+			Handler:    _CommentSrv_CommentList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

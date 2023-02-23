@@ -45,7 +45,7 @@ func CommentList(ctx *gin.Context) {
 		Token:   ctx.Query("token"),
 		VideoId: videoId,
 	}
-	response, err := rpc.CommentClient.FavoriteList(context.Background(), &request)
+	response, err := rpc.CommentClient.CommentList(context.Background(), &request)
 	if err != nil {
 		fmt.Println("出错", err)
 	}

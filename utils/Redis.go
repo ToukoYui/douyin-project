@@ -1,12 +1,14 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"strconv"
 )
 
 var RedisDb *redis.Client
+var Ctx = context.Background()
 
 func InitRedis(config Redis) {
 	fmt.Println("Redis已经连接...")
