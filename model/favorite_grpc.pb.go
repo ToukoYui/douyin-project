@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type FavoriteSrvClient interface {
 	FavoriteAction(ctx context.Context, in *DouyinFavoriteActionRequest, opts ...grpc.CallOption) (*DouyinFavoriteActionResponse, error)
 	FavoriteList(ctx context.Context, in *DouyinFavoriteListRequest, opts ...grpc.CallOption) (*DouyinFavoriteListResponse, error)
+	CheckIsFavorite(ctx context.Context, in *IsFavoriteRequest, opts ...grpc.CallOption) (*IsFavoriteResponse, error)
 }
 
 type favoriteSrvClient struct {
@@ -52,12 +53,22 @@ func (c *favoriteSrvClient) FavoriteList(ctx context.Context, in *DouyinFavorite
 	return out, nil
 }
 
+func (c *favoriteSrvClient) CheckIsFavorite(ctx context.Context, in *IsFavoriteRequest, opts ...grpc.CallOption) (*IsFavoriteResponse, error) {
+	out := new(IsFavoriteResponse)
+	err := c.cc.Invoke(ctx, "/favorite.FavoriteSrv/CheckIsFavorite", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FavoriteSrvServer is the server API for FavoriteSrv service.
 // All implementations must embed UnimplementedFavoriteSrvServer
 // for forward compatibility
 type FavoriteSrvServer interface {
 	FavoriteAction(context.Context, *DouyinFavoriteActionRequest) (*DouyinFavoriteActionResponse, error)
 	FavoriteList(context.Context, *DouyinFavoriteListRequest) (*DouyinFavoriteListResponse, error)
+	CheckIsFavorite(context.Context, *IsFavoriteRequest) (*IsFavoriteResponse, error)
 	mustEmbedUnimplementedFavoriteSrvServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedFavoriteSrvServer) FavoriteAction(context.Context, *DouyinFav
 }
 func (UnimplementedFavoriteSrvServer) FavoriteList(context.Context, *DouyinFavoriteListRequest) (*DouyinFavoriteListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FavoriteList not implemented")
+}
+func (UnimplementedFavoriteSrvServer) CheckIsFavorite(context.Context, *IsFavoriteRequest) (*IsFavoriteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIsFavorite not implemented")
 }
 func (UnimplementedFavoriteSrvServer) mustEmbedUnimplementedFavoriteSrvServer() {}
 
@@ -120,6 +134,24 @@ func _FavoriteSrv_FavoriteList_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FavoriteSrv_CheckIsFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IsFavoriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FavoriteSrvServer).CheckIsFavorite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/favorite.FavoriteSrv/CheckIsFavorite",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FavoriteSrvServer).CheckIsFavorite(ctx, req.(*IsFavoriteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FavoriteSrv_ServiceDesc is the grpc.ServiceDesc for FavoriteSrv service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var FavoriteSrv_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FavoriteList",
 			Handler:    _FavoriteSrv_FavoriteList_Handler,
+		},
+		{
+			MethodName: "CheckIsFavorite",
+			Handler:    _FavoriteSrv_CheckIsFavorite_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

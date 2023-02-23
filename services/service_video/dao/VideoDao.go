@@ -5,7 +5,7 @@ import (
 	"douyin-template/model"
 	"douyin-template/model/pb"
 	"douyin-template/services/consts"
-	"douyin-template/services/service_user/db"
+	"douyin-template/services/service_video/db"
 	"douyin-template/services/service_video/rpc"
 	"douyin-template/utils"
 	"fmt"
@@ -52,7 +52,7 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 		if err != nil {
 			return nil, 0
 		}
-		result, err := utils.RedisDb.Set(ctx, consts.VIDEO_CACHE_KEY, string(jsonString), 0).Result()
+		result, err := utils.RedisDb.Set(ctx, consts.VIDEO_CACHE_KEY, string(jsonString), 10*time.Minute).Result()
 		if err != nil {
 			return nil, 0
 		}
@@ -77,20 +77,45 @@ func GetVideoInfoList(request *model.DouyinFeedRequest) ([]*model.VideoDto, int6
 
 	for i, item := range videoList {
 		//根据user_id查询User对象
-		var user model.User
-		db.Db.Select([]string{"id", "name", "follow_count", "follower_count"}).First(&user, item.GetUserId())
+		//2.调用user服务获取user对象
+		myClaim, _ := utils.ParseToken(request.GetToken())
+		userId, err := strconv.ParseInt(myClaim.UserId, 10, 64)
+		if err != nil {
+			fmt.Sprintf("字符串id转int64失败：%v", err)
+		}
+		response, err := rpc.VideoToUserRpcClient.GetUserInfo(context.Background(), &model.DouyinUserRequest{
+			UserId: userId,
+			Token:  request.GetToken(),
+		})
+		if err != nil {
+			fmt.Sprintf("调用user服务失败：%v", err)
+		}
+		user := response.GetUser()
 		// 查询favorite表获取is_favorite
-		favorite := pb.Favorite{}
-		db.Db.Select("is_favorite").Where("user_id=? and video_id=?", user.GetId(), item.GetId()).First(&favorite)
+		isFavoriteRequestmodel := model.IsFavoriteRequest{
+			UserId:  user.GetId(),
+			VideoId: item.GetId(),
+		}
+		isFavorite, err := rpc.VideoToFavoriteRpcClient.CheckIsFavorite(context.Background(), &isFavoriteRequestmodel)
+		if err != nil {
+			fmt.Sprintf("video调用favorit失败：%v", err)
+		}
+
+		//favorite := pb.Favorite{}
+
+		isFav := false
+		if isFavorite.GetIsFavorite() == 1 {
+			isFav = true
+		}
 		// 包装视频列表结果
 		resultList[i] = &model.VideoDto{
 			Id:            item.GetId(),
-			Author:        &user,
+			Author:        user,
 			PlayUrl:       item.GetPlayUrl(),
 			CoverUrl:      item.GetCoverUrl(),
 			FavoriteCount: item.GetFavoriteCount(),
 			CommentCount:  item.GetCommentCount(),
-			IsFavorite:    favorite.IsFavorite,
+			IsFavorite:    isFav,
 			Title:         item.GetTitle(),
 		}
 	}
@@ -132,7 +157,7 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 		}
 		fmt.Printf("缓存中没有数据!%s", jsonString)
 		//3.3 将数据加入到缓存中
-		utils.RedisDb.Set(ctx, key, jsonString, 0)
+		utils.RedisDb.Set(ctx, key, jsonString, time.Second*10)
 	} else {
 		//4. 走缓存
 		data := utils.RedisDb.Get(ctx, key)

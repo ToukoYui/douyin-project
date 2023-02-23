@@ -76,9 +76,14 @@ message douyin_userid_and_videoid{
   int64 video_id = 2;
 }
 
+message douyin_comment_count_request{
+  bool is_update = 1;
+}
+
 service FeedSrv{
   rpc GetUserFeed (douyin_feed_request) returns (douyin_feed_response) {}
   rpc PublishAction(douyin_publish_action_request) returns (douyin_publish_action_response){}
   rpc PublishList(douyin_publish_list_request) returns (douyin_publish_list_response){}
   rpc GetLikedVideo (douyin_userid_and_videoid) returns (VideoDto) {}
+  rpc ChangeCommentCount(douyin_userid_and_videoid) returns (douyin_comment_count_request){};
 }

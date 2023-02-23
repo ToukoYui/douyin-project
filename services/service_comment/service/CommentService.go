@@ -93,19 +93,21 @@ func CountFromVideoId(videoId int64) (int64, error) {
 // 2、发表评论
 func Send(comment model.Comment, token string) (model.CommentDto, error) {
 	log.Println("CommentService-Send: running") //函数已运行
-
-	//1.评论信息存储：
-	err := dao.InsertComment(comment)
-	if err != nil {
-		return model.CommentDto{}, err
-	}
-
-	//2.调用user服务获取user对象
 	myClaim, _ := utils.ParseToken(token)
 	userId, err := strconv.ParseInt(myClaim.UserId, 10, 64)
 	if err != nil {
 		fmt.Sprintf("字符串id转int64失败：%v", err)
 	}
+
+	//1.评论信息存储：
+	comment.UserId = userId
+	err = dao.InsertComment(comment)
+	if err != nil {
+		return model.CommentDto{}, err
+	}
+
+	//2.调用user服务获取user对象
+
 	response, err := rpc.CommentToUserRpcClient.GetUserInfo(context.Background(), &model.DouyinUserRequest{
 		UserId: userId,
 		Token:  token,

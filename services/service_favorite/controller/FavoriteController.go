@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin-template/model"
 	"douyin-template/services/service_favorite/dao"
+	"douyin-template/services/service_favorite/db"
 	"douyin-template/services/service_favorite/rpc"
 	"douyin-template/utils"
 	"fmt"
@@ -62,4 +63,13 @@ func (i *Server) FavoriteList(ctx context.Context, request *model.DouyinFavorite
 		VideoList:  videoDatoList,
 	}, nil
 
+}
+
+func (i *Server) CheckIsFavorite(ctx context.Context, request *model.IsFavoriteRequest) (*model.IsFavoriteResponse, error) {
+	favorite := model.Favorite{}
+	err := db.Db.Select("is_favorite").Where("user_id=? and video_id=?", request.GetUserId(), request.GetVideoId()).First(&favorite).Error
+	if err != nil {
+		fmt.Sprintf("查询fav错误：%v", err)
+	}
+	return &model.IsFavoriteResponse{IsFavorite: int64(favorite.GetIsFavorite())}, nil
 }

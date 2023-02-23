@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin-template/model"
 	"douyin-template/services/service_video/dao"
+	"douyin-template/services/service_video/db"
 	"douyin-template/services/service_video/rpc"
 	"douyin-template/services/service_video/service"
 	"fmt"
@@ -87,5 +88,27 @@ func (s *Server) GetLikedVideo(ctx context.Context, request *model.DouyinUseridA
 		IsFavorite:    video.GetIsFavorite(),
 		Title:         video.GetTitle(),
 	}, nil
+}
 
+func (s *Server) ChangeCommentCount(ctx context.Context, request *model.DouyinUseridAndVideoid) (*model.DouyinCommentCountRequest, error) {
+	video := model.Video{}
+	rowsAffected := db.Db.Select("comment_count").Where("id=?", request.GetVideoId()).First(&video).RowsAffected
+	if rowsAffected <= 0 {
+		fmt.Println("查询video无结果")
+	}
+
+	if request.GetUserId() == 1 { //评论数加1
+		err := db.Db.Model(&model.Video{}).Where("id=?", request.GetVideoId()).Update("comment_count", video.GetCommentCount()+1).Error
+		if err != nil {
+			fmt.Sprintf("更新评论数失败：%v", err)
+		}
+	} else {
+		err := db.Db.Model(&model.Video{}).Where("id=?", request.GetVideoId()).Update("comment_count", video.GetCommentCount()-1).Error
+		if err != nil {
+			fmt.Sprintf("更新评论数失败：%v", err)
+		}
+	}
+	return &model.DouyinCommentCountRequest{
+		IsUpdate: true,
+	}, nil
 }

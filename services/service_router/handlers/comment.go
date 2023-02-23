@@ -34,6 +34,14 @@ func CommentAction(ctx *gin.Context) {
 		fmt.Println("出错", err)
 	}
 	ctx.JSON(200, *response)
+
+	//listReq := model.DouyinCommentListRequest{
+	//
+	//}
+	//commentList, err := rpc.CommentClient.CommentList(context.Background(), &listReq)
+	//if err != nil {
+	//	fmt.Println("出错", err)
+	//}
 }
 
 func CommentList(ctx *gin.Context) {

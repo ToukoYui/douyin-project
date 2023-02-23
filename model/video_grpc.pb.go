@@ -26,6 +26,7 @@ type FeedSrvClient interface {
 	PublishAction(ctx context.Context, in *DouyinPublishActionRequest, opts ...grpc.CallOption) (*DouyinPublishActionResponse, error)
 	PublishList(ctx context.Context, in *DouyinPublishListRequest, opts ...grpc.CallOption) (*DouyinPublishListResponse, error)
 	GetLikedVideo(ctx context.Context, in *DouyinUseridAndVideoid, opts ...grpc.CallOption) (*VideoDto, error)
+	ChangeCommentCount(ctx context.Context, in *DouyinUseridAndVideoid, opts ...grpc.CallOption) (*DouyinCommentCountRequest, error)
 }
 
 type feedSrvClient struct {
@@ -72,6 +73,15 @@ func (c *feedSrvClient) GetLikedVideo(ctx context.Context, in *DouyinUseridAndVi
 	return out, nil
 }
 
+func (c *feedSrvClient) ChangeCommentCount(ctx context.Context, in *DouyinUseridAndVideoid, opts ...grpc.CallOption) (*DouyinCommentCountRequest, error) {
+	out := new(DouyinCommentCountRequest)
+	err := c.cc.Invoke(ctx, "/video.FeedSrv/ChangeCommentCount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FeedSrvServer is the server API for FeedSrv service.
 // All implementations must embed UnimplementedFeedSrvServer
 // for forward compatibility
@@ -80,6 +90,7 @@ type FeedSrvServer interface {
 	PublishAction(context.Context, *DouyinPublishActionRequest) (*DouyinPublishActionResponse, error)
 	PublishList(context.Context, *DouyinPublishListRequest) (*DouyinPublishListResponse, error)
 	GetLikedVideo(context.Context, *DouyinUseridAndVideoid) (*VideoDto, error)
+	ChangeCommentCount(context.Context, *DouyinUseridAndVideoid) (*DouyinCommentCountRequest, error)
 	mustEmbedUnimplementedFeedSrvServer()
 }
 
@@ -98,6 +109,9 @@ func (UnimplementedFeedSrvServer) PublishList(context.Context, *DouyinPublishLis
 }
 func (UnimplementedFeedSrvServer) GetLikedVideo(context.Context, *DouyinUseridAndVideoid) (*VideoDto, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLikedVideo not implemented")
+}
+func (UnimplementedFeedSrvServer) ChangeCommentCount(context.Context, *DouyinUseridAndVideoid) (*DouyinCommentCountRequest, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeCommentCount not implemented")
 }
 func (UnimplementedFeedSrvServer) mustEmbedUnimplementedFeedSrvServer() {}
 
@@ -184,6 +198,24 @@ func _FeedSrv_GetLikedVideo_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FeedSrv_ChangeCommentCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DouyinUseridAndVideoid)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeedSrvServer).ChangeCommentCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/video.FeedSrv/ChangeCommentCount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeedSrvServer).ChangeCommentCount(ctx, req.(*DouyinUseridAndVideoid))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // FeedSrv_ServiceDesc is the grpc.ServiceDesc for FeedSrv service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +238,10 @@ var FeedSrv_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetLikedVideo",
 			Handler:    _FeedSrv_GetLikedVideo_Handler,
+		},
+		{
+			MethodName: "ChangeCommentCount",
+			Handler:    _FeedSrv_ChangeCommentCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

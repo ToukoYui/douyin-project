@@ -1,9 +1,12 @@
 package dao
 
 import (
+	"context"
 	"douyin-template/model"
 	"douyin-template/services/service_comment/db"
+	"douyin-template/services/service_comment/rpc"
 	"errors"
+	"fmt"
 	"log"
 )
 
@@ -43,6 +46,16 @@ func InsertComment(comment model.Comment) error {
 	if err != nil {
 		log.Println("CommentDao-InsertComment: return create comment failed") //函数返回提示错误信息
 		return errors.New("create comment failed")
+	}
+	// video表的评论数+1
+
+	// 1.加1 2.减1
+	_, err = rpc.CommentTOVideoRpcClient.ChangeCommentCount(context.Background(), &model.DouyinUseridAndVideoid{
+		UserId:  1,
+		VideoId: comment.GetVideoId(),
+	})
+	if err != nil {
+		fmt.Sprintf("调用video服务失败：%v", err)
 	}
 	log.Println("CommentDao-InsertComment: return success") //函数执行成功，返回正确信息
 	return nil
