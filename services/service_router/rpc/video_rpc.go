@@ -11,7 +11,10 @@ var FeedRpcClient model.FeedSrvClient
 
 // initFeedRpc 初始化Video客户端
 func initFeedRpc() {
-	dial, err := grpc.Dial("127.0.0.1:5679", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	size := 1024 * 1024 * 20
+
+	//dial, err := grpc.Dial("127.0.0.1:5679", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	dial, err := grpc.Dial("127.0.0.1:5679", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(size)))
 	if err != nil {
 		log.Fatal(err)
 		return
