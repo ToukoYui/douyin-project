@@ -3,7 +3,6 @@ package dao
 import (
 	"context"
 	"douyin-template/model"
-	"douyin-template/model/pb"
 	"douyin-template/services/consts"
 	"douyin-template/services/service_video/db"
 	"douyin-template/services/service_video/rpc"
@@ -21,7 +20,7 @@ func existsKey(key string) bool {
 	result, _ := utils.RedisDb.Do(context.Background(), "exists", key).Result()
 	exist := result.(int64)
 	fmt.Println(exist)
-	if exist == 1 {
+	if exist == 0 {
 		return false
 	}
 	return true
@@ -155,7 +154,7 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 		if err != nil {
 			return nil
 		}
-		fmt.Printf("缓存中没有数据!%s", jsonString)
+		fmt.Printf("缓存中没有数据,查询数据库获取：%s", jsonString)
 		//3.3 将数据加入到缓存中
 		utils.RedisDb.Set(ctx, key, jsonString, time.Second*10)
 	} else {
@@ -167,7 +166,7 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 		}
 		//4.1 将缓存中的对象反序列化为videoList
 		err = json.Unmarshal(bytes, videoList)
-		fmt.Printf("缓存中有数据,%s", videoList)
+		fmt.Printf("缓存中有数据,%v", videoList)
 		if err != nil {
 			return nil
 		}
@@ -188,8 +187,22 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 		user := *userInfoResp.GetUser()
 
 		// 查询favorite表获取is_favorite   todo 调用like服务查询is_favorite
-		favorite := pb.Favorite{}
-		db.Db.Select("is_favorite").Where("user_id=? and video_id=?", user.GetId(), item.GetId()).First(&favorite)
+		response, err := rpc.VideoToFavoriteRpcClient.CheckIsFavorite(context.Background(), &model.IsFavoriteRequest{
+			UserId:  request.GetUserId(),
+			VideoId: item.GetId(),
+		})
+		if err != nil {
+			fmt.Sprintf("调用Favorite服务查询对象失败%v", err)
+		}
+		var isFav bool
+		if response.GetIsFavorite() == 1 {
+			isFav = true
+		} else {
+			isFav = false
+		}
+		//favorite := model.Favorite{}
+		//db.Db.Select("is_favorite").Where("user_id=? and video_id=?", user.GetId(), item.GetId()).First(&favorite)
+
 		// 包装视频列表结果
 		resultList[i] = &model.VideoDto{
 			Id:            item.GetId(),
@@ -198,7 +211,7 @@ func GetPublishVideoList(request *model.DouyinPublishListRequest) []*model.Video
 			CoverUrl:      item.GetCoverUrl(),
 			FavoriteCount: item.GetFavoriteCount(),
 			CommentCount:  item.GetCommentCount(),
-			IsFavorite:    favorite.IsFavorite,
+			IsFavorite:    isFav,
 			Title:         item.GetTitle(),
 		}
 	}

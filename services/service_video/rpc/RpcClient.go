@@ -16,7 +16,7 @@ var VideoToFavoriteRpcClient model.FavoriteSrvClient
 func InitUserRpc() {
 	// 连接服务端，因为我们没有SSL证书，因此这里需要禁用安全传输
 	size := 1024 * 1024 * 20
-	dial, err := grpc.Dial("127.0.0.1:5679", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(size)))
+	dial, err := grpc.Dial("127.0.0.1:5678", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(size)))
 	//dial, err := grpc.Dial("127.0.0.1:5678", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal(err)

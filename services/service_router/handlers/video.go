@@ -6,7 +6,7 @@ import (
 	"douyin-template/services/service_router/rpc"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
+	"io"
 	"strconv"
 	"time"
 )
@@ -34,11 +34,8 @@ func Publish(ctx *gin.Context) {
 	if err2 != nil {
 		panic(any("打开视频流失败"))
 	}
-
-	//var dataArr []byte
-	fileByte, err := ioutil.ReadAll(open)
-
-	//open.Read(dataArr)
+	//fileByte, err := ioutil.ReadAll(open) //*multipart.FileHeader转字节数组
+	fileByte, err := io.ReadAll(open)
 
 	request := model.DouyinPublishActionRequest{
 		Token: ctx.PostForm("token"),
